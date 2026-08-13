@@ -187,17 +187,30 @@ body.shop-layout {
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: var(--shop-text);
+    color: var(--shop-text-muted);
     text-decoration: none;
     font-size: 0.75rem;
     cursor: pointer;
     position: relative;
+    transition: all 0.2s;
 }
 
 .shop-action-btn i {
     font-size: 1.25rem;
     margin-bottom: 4px;
+    color: var(--shop-secondary);
+    transition: all 0.2s;
+}
+
+.shop-action-btn:hover,
+.shop-action-btn.active {
     color: var(--shop-primary);
+}
+
+.shop-action-btn:hover i,
+.shop-action-btn.active i {
+    color: var(--shop-primary);
+    transform: scale(1.15);
 }
 
 .shop-cart-badge {

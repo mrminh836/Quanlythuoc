@@ -9,6 +9,7 @@ const Cart = {
         this.items = Storage.get('shop_cart') || [];
         this.renderBadge();
         this.buildDrawerUI();
+        this.highlightActiveMenu();
     },
 
     save: function() {
@@ -22,6 +23,32 @@ const Cart = {
         document.querySelectorAll('#cart-count').forEach(el => {
             el.innerText = count;
             el.style.display = count > 0 ? 'inline-block' : 'none';
+        });
+    },
+
+    highlightActiveMenu: function() {
+        const path = window.location.pathname;
+        const page = path.split('/').pop() || 'shop.html';
+        
+        document.querySelectorAll('.shop-action-btn').forEach(btn => {
+            const href = btn.getAttribute('href');
+            if (href && href === page) {
+                btn.classList.add('active');
+                // Remove hardcoded inline styles if any
+                btn.style.color = '';
+                const icon = btn.querySelector('i');
+                if (icon) icon.style.color = '';
+                const span = btn.querySelector('span');
+                if (span) span.style.color = '';
+            } else if (href) {
+                btn.classList.remove('active');
+                // Optional: remove hardcoded inline styles from inactive ones too
+                btn.style.color = '';
+                const icon = btn.querySelector('i');
+                if (icon) icon.style.color = '';
+                const span = btn.querySelector('span');
+                if (span) span.style.color = '';
+            }
         });
     },
 
