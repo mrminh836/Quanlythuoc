@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài khoản của tôi - Smart Pharmacy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/shop.css">
+    <style>
+        .account-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .account-sidebar {
+            background: var(--shop-surface);
+            border: 1px solid var(--shop-border);
+            border-radius: var(--shop-radius);
+            padding: 1.5rem 1rem;
+            height: fit-content;
+        }
+        .account-sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--shop-border);
+            margin-bottom: 1rem;
+        }
+        .account-sidebar-user img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .account-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .account-nav li {
+            margin-bottom: 0.5rem;
+        }
+        .account-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 15px;
+            color: var(--shop-text);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .account-nav a:hover, .account-nav a.active {
+            background: var(--shop-bg);
+            color: var(--shop-primary);
+            font-weight: 500;
+        }
+        .account-content {
+            background: var(--shop-surface);
+            border: 1px solid var(--shop-border);
+            border-radius: var(--shop-radius);
+            padding: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--shop-text);
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--shop-border);
+            border-radius: 6px;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--shop-primary);
+        }
+        .btn-save {
+            background: var(--shop-primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-save:hover {
+            background: var(--shop-secondary);
+        }
+    </style>
+</head>
+<body class="shop-layout">
+
+    <header class="shop-header">
+        <div class="shop-header-top">
+            <a href="shop.html" class="shop-logo"><i class="fa-solid fa-notes-medical"></i> Smart Pharmacy</a>
+            <div class="shop-header-actions">
+                <a href="shop-account.html" class="shop-action-btn" style="color: var(--shop-primary);"><i class="fa-solid fa-user"></i><span>Tài khoản</span></a>
+                <a href="wishlist.html" class="shop-action-btn"><i class="fa-solid fa-heart"></i><span>Yêu thích</span></a>
+                <a href="#" class="shop-action-btn" onclick="Cart.toggleDrawer(event)"><i class="fa-solid fa-cart-shopping"></i><span>Giỏ hàng</span><span class="shop-cart-badge" id="cart-count">0</span></a>
+            </div>
+        </div>
+    </header>
+
+    <div class="shop-container">
+        <div class="account-layout">
+            <!-- Sidebar -->
+            <aside class="account-sidebar">
+                <div class="account-sidebar-user">
+                    <img src="https://ui-avatars.com/api/?name=Khách+Hàng&background=0ea5e9&color=fff" alt="Avatar">
+                    <div>
+                        <div style="font-weight: 600;">Khách Hàng</div>
+                        <div style="font-size: 0.8rem; color: var(--shop-text-muted);">Thành viên Bạc</div>
+                    </div>
+                </div>
+                <ul class="account-nav">
+                    <li><a href="shop-account.html" class="active"><i class="fa-regular fa-user"></i> Hồ sơ của tôi</a></li>
+                    <li><a href="my-orders.html"><i class="fa-solid fa-clipboard-list"></i> Đơn mua</a></li>
+                    <li><a href="wishlist.html"><i class="fa-regular fa-heart"></i> Sản phẩm yêu thích</a></li>
+                    <li><a href="#" onclick="handleLogout(event)" style="color: #ef4444;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất</a></li>
+                </ul>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="account-content">
+                <h2 style="margin-top: 0; margin-bottom: 0.5rem;">Hồ sơ của tôi</h2>
+                <p style="color: var(--shop-text-muted); margin-bottom: 2rem;">Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
+
+                <form onsubmit="event.preventDefault(); App.showToast('Đã lưu thông tin tài khoản!', 'success');">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label>Họ và tên</label>
+                            <input type="text" class="form-control" value="Khách Hàng" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Số điện thoại</label>
+                            <input type="tel" class="form-control" value="0988123456" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" value="khachhang@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Địa chỉ mặc định</label>
+                        <input type="text" class="form-control" value="123 Nguyễn Văn Cừ, Quận 5, TP. HCM">
+                    </div>
+                    <div class="form-group">
+                        <label>Giới tính</label>
+                        <div style="display: flex; gap: 2rem; margin-top: 10px;">
+                            <label><input type="radio" name="gender" value="male" checked> Nam</label>
+                            <label><input type="radio" name="gender" value="female"> Nữ</label>
+                            <label><input type="radio" name="gender" value="other"> Khác</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-save">Lưu thay đổi</button>
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/storage.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/cart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = Storage.get('shop_user');
+            if(!user || !user.isLoggedIn) {
+                window.location.href = 'shop-login.html';
+            }
+        });
+
+        function handleLogout(e) {
+            e.preventDefault();
+            Storage.set('shop_user', null);
+            App.showToast('Đã đăng xuất', 'info');
+            setTimeout(() => {
+                window.location.href = 'shop-login.html';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

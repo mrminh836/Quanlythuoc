@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giờ Vàng Giá Sốc - Smart Pharmacy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/shop.css">
+    <style>
+        .fs-header {
+            background: linear-gradient(90deg, #ef4444 0%, #f97316 100%);
+            color: white;
+            padding: 3rem 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .fs-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        .fs-title i {
+            color: #ffe600;
+        }
+        .fs-countdown {
+            display: inline-flex;
+            gap: 10px;
+            font-size: 1.5rem;
+            align-items: center;
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 30px;
+        }
+        .fs-countdown span.box {
+            background: white;
+            color: #ef4444;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            min-width: 40px;
+            display: inline-block;
+        }
+        .fs-progress {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+            width: 100%;
+        }
+        .fs-progress-bar {
+            background: #ef4444;
+            height: 100%;
+        }
+        .fs-stock-text {
+            font-size: 0.8rem;
+            color: var(--shop-text-muted);
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body class="shop-layout">
+
+    <header class="shop-header">
+        <div class="shop-header-top">
+            <a href="shop.html" class="shop-logo">
+                <i class="fa-solid fa-notes-medical"></i>
+                Smart Pharmacy
+            </a>
+            
+            <div style="flex:1;"></div>
+
+            <div class="shop-header-actions">
+                <a href="shop.html" class="shop-action-btn">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Trang chủ</span>
+                </a>
+                <a href="shop-account.html" class="shop-action-btn">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Tài khoản</span>
+                </a>
+                <a href="#" class="shop-action-btn" onclick="Cart.toggleDrawer(event)">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>Giỏ hàng</span>
+                    <span class="shop-cart-badge" id="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="fs-header">
+        <div class="fs-title"><i class="fa-solid fa-bolt"></i> GIỜ VÀNG GIÁ SỐC</div>
+        <div class="fs-countdown" id="main-countdown">
+            <span class="box">00</span> : <span class="box">05</span> : <span class="box">32</span> : <span class="box">12</span>
+        </div>
+    </div>
+
+    <div class="shop-container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <div class="products-grid" id="fs-product-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
+            <!-- Products injected here -->
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/storage.js"></script>
+    <script src="../js/mock-data.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/cart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            MockData.initialize();
+            FlashSale.init();
+        });
+
+        const FlashSale = {
+            init: function() {
+                this.startCountdown();
+                this.renderProducts();
+            },
+            
+            startCountdown: function() {
+                let d = 0;
+                let h = 5;
+                let m = 32;
+                let s = 12;
+                
+                setInterval(() => {
+                    s--;
+                    if(s < 0) { s = 59; m--; }
+                    if(m < 0) { m = 59; h--; }
+                    if(h < 0) { h = 23; d--; }
+                    if(d < 0) { d = 0; h = 0; m = 0; s = 0; }
+                    
+                    const boxes = document.querySelectorAll('#main-countdown .box');
+                    if(boxes.length >= 4) {
+                        boxes[0].innerText = d.toString().padStart(2, '0');
+                        boxes[1].innerText = h.toString().padStart(2, '0');
+                        boxes[2].innerText = m.toString().padStart(2, '0');
+                        boxes[3].innerText = s.toString().padStart(2, '0');
+                    }
+                }, 1000);
+            },
+
+            renderProducts: function() {
+                const products = Storage.get('products') || [];
+                
+                // Thuật toán chọn sản phẩm Flash Sale:
+                // 1. Lọc ra các sản phẩm còn hàng
+                // 2. Trộn ngẫu nhiên (shuffle) và chọn 16 sản phẩm
+                // 3. Tự động gắn nhãn giảm giá sâu (30% - 70%)
+                // 4. Tạo thanh tiến trình "Đã bán" giả lập độ hot
+                
+                let inStock = products.filter(p => p.stock > 0);
+                
+                // Shuffle array
+                for (let i = inStock.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [inStock[i], inStock[j]] = [inStock[j], inStock[i]];
+                }
+                
+                let flashSaleItems = inStock.slice(0, 16).map(p => {
+                    const randomDiscount = Math.floor(Math.random() * 41) + 30; // 30% - 70%
+                    const originalPrice = p.price;
+                    const discountedPrice = Math.round(originalPrice * (1 - randomDiscount / 100));
+                    
+                    return {
+                        ...p,
+                        oldPrice: originalPrice,
+                        price: discountedPrice,
+                        discountPercent: randomDiscount,
+                        soldPercent: Math.floor(Math.random() * 70) + 30 // 30% - 99% sold
+                    };
+                });
+
+                // Sắp xếp theo độ hot (bán chạy nhất lên đầu)
+                flashSaleItems.sort((a, b) => b.soldPercent - a.soldPercent);
+
+                const grid = document.getElementById('fs-product-grid');
+                let html = '';
+                
+                flashSaleItems.forEach(p => {
+                    const imgSrc = p.imageUrl || p.image || 'data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22300%22%20height%3D%22300%22%20viewBox%3D%220%200%20300%20300%22%3E%3Crect%20width%3D%22300%22%20height%3D%22300%22%20fill%3D%22%23f3f4f6%22%2F%3E%3Ctext%20x%3D%22150%22%20y%3D%22150%22%20font-family%3D%22sans-serif%22%20font-size%3D%2216%22%20fill%3D%22%239ca3af%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ECh%C6%B0a%20c%C3%B3%20%E1%BA%A3nh%3C%2Ftext%3E%3C%2Fsvg%3E';
+                    
+                    html += `
+                        <div class="product-card" style="border: 2px solid #ef4444; position: relative;">
+                            <div class="product-badge" style="background: #ef4444; font-size: 1.1rem; padding: 6px 12px; font-weight: bold;">-${p.discountPercent}%</div>
+                            
+                            <img src="${imgSrc}" alt="${p.name}" class="product-image" onclick="location.href='shop-detail.html?id=${p.id}'" style="cursor:pointer; object-fit: cover;">
+                            
+                            <div class="product-brand">${p.brand || 'Dược phẩm'}</div>
+                            <div class="product-name" title="${p.name}" onclick="location.href='shop-detail.html?id=${p.id}'" style="cursor:pointer; height: 40px; overflow: hidden;">${p.name}</div>
+                            
+                            <div class="product-price-row" style="margin-top: 15px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+                                <span class="product-price" style="color: #ef4444; font-size: 1.4rem;">${App.formatCurrency(p.price)}</span>
+                                <span class="product-old-price" style="font-size: 0.9rem;">${App.formatCurrency(p.oldPrice)}</span>
+                            </div>
+                            
+                            <div style="margin-top: 15px; position: relative;">
+                                <div class="fs-progress" style="height: 12px; border-radius: 10px; background: #fee2e2;">
+                                    <div class="fs-progress-bar" style="width: ${p.soldPercent}%; border-radius: 10px; background: linear-gradient(90deg, #f87171, #ef4444);"></div>
+                                </div>
+                                <div class="fs-stock-text" style="position: absolute; top: -2px; left: 0; width: 100%; text-align: center; color: white; font-size: 0.7rem; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+                                    ${p.soldPercent >= 95 ? 'Sắp hết hàng' : 'Đã bán ' + p.soldPercent + '%'}
+                                </div>
+                            </div>
+
+                            <div class="product-actions" style="margin-top: 20px;">
+                                <button class="btn-add-cart" style="background: #ef4444; width: 100%; padding: 12px; font-size: 1.1rem; font-weight: bold;" onclick="Cart.add('${p.id}', 1, event)">
+                                    MUA NGAY
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                grid.innerHTML = html;
+            }
+        };
+    </script>
+</body>
+</html>

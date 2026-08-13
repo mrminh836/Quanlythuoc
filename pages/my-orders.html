@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn hàng của tôi - Smart Pharmacy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/shop.css">
+    <style>
+        .order-card {
+            background: var(--shop-surface);
+            border: 1px solid var(--shop-border);
+            border-radius: var(--shop-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px dashed var(--shop-border);
+        }
+        .order-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .status-PENDING { background: #fef3c7; color: #d97706; }
+        .status-COMPLETED { background: #dcfce7; color: #15803d; }
+        .status-CANCELLED { background: #fee2e2; color: #b91c1c; }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body class="shop-layout">
+
+    <header class="shop-header">
+        <div class="shop-header-top">
+            <a href="shop.html" class="shop-logo"><i class="fa-solid fa-notes-medical"></i> Smart Pharmacy</a>
+            <div class="shop-header-actions">
+                <a href="shop-account.html" class="shop-action-btn"><i class="fa-solid fa-user"></i><span>Tài khoản</span></a>
+                <a href="wishlist.html" class="shop-action-btn"><i class="fa-solid fa-heart"></i><span>Yêu thích</span></a>
+                <a href="#" class="shop-action-btn" onclick="Cart.toggleDrawer(event)"><i class="fa-solid fa-cart-shopping"></i><span>Giỏ hàng</span></a>
+            </div>
+        </div>
+    </header>
+
+    <div class="shop-container" style="max-width: 800px;">
+        <h2 style="margin-bottom: 2rem;">Lịch sử đơn hàng</h2>
+        
+        <div id="orders-list">
+            <!-- Injected -->
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/storage.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/cart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const allOrders = Storage.get('orders') || [];
+            // Assuming customer is GUEST for now
+            const myOrders = allOrders.filter(o => o.customerId === 'GUEST').sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            const container = document.getElementById('orders-list');
+            
+            if(myOrders.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:3rem; color:var(--shop-text-muted);">Bạn chưa có đơn hàng nào. <br><br><a href="shop.html" style="color:var(--shop-primary);">Tiếp tục mua sắm</a></div>`;
+                return;
+            }
+
+            let html = '';
+            myOrders.forEach(o => {
+                let itemsHtml = '';
+                o.items.forEach(i => {
+                    itemsHtml += `
+                        <div class="order-item">
+                            <div>${i.name} <strong>x${i.quantity}</strong></div>
+                            <div>${App.formatCurrency(i.price * i.quantity)}</div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <div style="font-weight:bold; font-size:1.1rem;">${o.id}</div>
+                                <div style="font-size:0.875rem; color:var(--shop-text-muted);">${new Date(o.timestamp).toLocaleString('vi-VN')}</div>
+                            </div>
+                            <div class="order-status status-${o.status}">${o.status}</div>
+                        </div>
+                        <div style="margin-bottom:1rem;">
+                            ${itemsHtml}
+                        </div>
+                        <div style="display:flex; justify-content:flex-end; font-size:1.25rem; font-weight:bold; color:var(--shop-primary);">
+                            Tổng: ${App.formatCurrency(o.summary.total)}
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        });
+    </script>
+<script src="../js/shop-ai.js"></script>
+</body>
+</html>

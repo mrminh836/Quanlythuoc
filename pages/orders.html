@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn hàng - Smart Pharmacy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <style>
+        .order-row { cursor: pointer; transition: background-color 0.2s; }
+        .order-row:hover { background-color: var(--primary-light); }
+        .invoice-print { font-family: monospace; }
+        .invoice-table { width: 100%; text-align: left; margin-bottom: 1rem; border-collapse: collapse; }
+        .invoice-table th, .invoice-table td { padding: 4px 0; border-bottom: 1px dashed #ccc; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="app-sidebar" id="app-sidebar"></aside>
+        <main class="app-main">
+            <header class="app-header" id="app-header"></header>
+
+            <div class="page-content">
+                <div class="page-header">
+                    <h1 class="page-title">Quản lý Đơn hàng (Hóa đơn)</h1>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Mã Đơn</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Khách hàng</th>
+                                    <th>Thu ngân</th>
+                                    <th>Trạng thái</th>
+                                    <th style="text-align: right;">Tổng tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody id="order-list"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal-overlay" id="order-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <span id="modal-title">Chi tiết đơn hàng</span>
+                <button class="modal-close" onclick="OrderManager.closeModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="invoice-print" id="order-details-content">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="OrderManager.closeModal()">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/storage.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/components.js"></script>
+    <script src="../js/orders.js"></script>
+    <script>
+        Auth.requireAuth();
+        if(!Auth.hasPermission('orders')) {
+            window.location.href = 'dashboard.html';
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            Layout.renderSidebar('orders');
+            Layout.renderHeader('Đơn hàng');
+            OrderManager.init();
+        });
+    </script>
+</body>
+</html>

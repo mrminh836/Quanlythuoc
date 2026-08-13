@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết sản phẩm - Smart Pharmacy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/shop.css">
+    <style>
+        .breadcrumb {
+            display: flex;
+            gap: 8px;
+            font-size: 0.875rem;
+            color: var(--shop-text-muted);
+            margin-bottom: 2rem;
+        }
+        .breadcrumb a { color: var(--shop-primary); text-decoration: none; }
+        
+        .product-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+            background: var(--shop-surface);
+            padding: 2rem;
+            border-radius: var(--shop-radius);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .product-gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .main-image {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: var(--shop-radius);
+            border: 1px solid var(--shop-border);
+        }
+        .thumbnail-list {
+            display: flex;
+            gap: 1rem;
+        }
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid var(--shop-border);
+            cursor: pointer;
+        }
+        .thumbnail.active { border: 2px solid var(--shop-primary); }
+
+        .product-info h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            color: var(--shop-text);
+        }
+        .p-brand { font-size: 0.875rem; color: var(--shop-text-muted); text-transform: uppercase; margin-bottom: 1rem; display: inline-block;}
+        .p-price-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: var(--shop-bg);
+            border-radius: var(--shop-radius);
+        }
+        .p-price { font-size: 2rem; font-weight: bold; color: var(--shop-primary); }
+        .p-old-price { text-decoration: line-through; color: var(--shop-text-muted); }
+        .p-badge { background: var(--shop-accent); color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.875rem; }
+
+        .p-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .qty-selector {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--shop-border);
+            border-radius: 4px;
+        }
+        .qty-btn {
+            background: none; border: none; padding: 10px 15px; cursor: pointer; font-size: 1.2rem;
+        }
+        .qty-input {
+            width: 50px; text-align: center; border: none; border-left: 1px solid var(--shop-border); border-right: 1px solid var(--shop-border); font-family: inherit; font-size: 1rem; padding: 10px 0;
+        }
+        
+        .p-btn-buy {
+            flex: 1;
+            background: var(--shop-primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .p-btn-buy:hover { background: var(--shop-secondary); }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--shop-border);
+            margin-bottom: 1.5rem;
+            gap: 2rem;
+        }
+        .tab-btn {
+            background: none; border: none; padding: 10px 0; font-size: 1.1rem; font-weight: 500; color: var(--shop-text-muted); cursor: pointer; position: relative;
+        }
+        .tab-btn.active { color: var(--shop-primary); font-weight: bold; }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background: var(--shop-primary);
+        }
+        .tab-content { display: none; line-height: 1.6; color: var(--shop-text); }
+        .tab-content.active { display: block; }
+        
+        @media (max-width: 768px) {
+            .product-detail-grid { grid-template-columns: 1fr; padding: 1rem; }
+            .p-actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body class="shop-layout">
+
+    <!-- Header (Same as shop.html) -->
+    <header class="shop-header">
+        <div class="shop-header-top">
+            <a href="shop.html" class="shop-logo"><i class="fa-solid fa-notes-medical"></i> Smart Pharmacy</a>
+            <div class="shop-search-bar">
+                <input type="text" id="shop-search-input" placeholder="Tìm kiếm thuốc, sản phẩm, hoạt chất..." onkeypress="if(event.key === 'Enter') window.location.href='shop.html'">
+                <button onclick="window.location.href='shop.html'"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div class="shop-header-actions">
+                <a href="shop-account.html" class="shop-action-btn"><i class="fa-solid fa-user"></i><span>Tài khoản</span></a>
+                <a href="wishlist.html" class="shop-action-btn"><i class="fa-solid fa-heart"></i><span>Yêu thích</span><span class="shop-cart-badge" id="wishlist-count" style="display: none;">0</span></a>
+                <a href="#" class="shop-action-btn" onclick="Cart.toggleDrawer(event)"><i class="fa-solid fa-cart-shopping"></i><span>Giỏ hàng</span><span class="shop-cart-badge" id="cart-count">0</span></a>
+            </div>
+        </div>
+    </header>
+
+    <div class="shop-container">
+        <div class="breadcrumb">
+            <a href="shop.html">Trang chủ</a> > <a href="#" id="bc-cat">Danh mục</a> > <span id="bc-name">Sản phẩm</span>
+        </div>
+
+        <div id="product-detail-container">
+            <!-- Injected by JS -->
+        </div>
+
+        <div style="background: var(--shop-surface); padding: 2rem; border-radius: var(--shop-radius); box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="openTab('desc')">Mô tả sản phẩm</button>
+                <button class="tab-btn" onclick="openTab('ingredient')">Thành phần</button>
+                <button class="tab-btn" onclick="openTab('usage')">Cách dùng</button>
+            </div>
+            <div id="tab-desc" class="tab-content active"></div>
+            <div id="tab-ingredient" class="tab-content"></div>
+            <div id="tab-usage" class="tab-content"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/storage.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/cart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            const products = Storage.get('products') || [];
+            const p = products.find(x => x.id === id);
+
+            if (!p) {
+                document.getElementById('product-detail-container').innerHTML = `<h2>Sản phẩm không tồn tại</h2>`;
+                return;
+            }
+
+            // Breadcrumb
+            document.getElementById('bc-cat').innerText = p.category;
+            document.getElementById('bc-name').innerText = p.name;
+
+            // Gallery
+            let thumbs = '';
+            if (p.images) {
+                p.images.forEach((img, idx) => {
+                    thumbs += `<img src="${img}" class="thumbnail ${idx===0?'active':''}" onclick="document.getElementById('main-img').src=this.src; document.querySelectorAll('.thumbnail').forEach(t=>t.classList.remove('active')); this.classList.add('active');">`;
+                });
+            }
+
+            const discountHtml = p.discount > 0 ? `<div class="p-badge">-${p.discount}%</div> <div class="p-old-price">${App.formatCurrency(p.oldPrice)}</div>` : '';
+            const statusHtml = p.stock === 0 ? `<div style="color: #ef4444; margin-bottom: 1rem;"><i class="fa-solid fa-circle-xmark"></i> Hết hàng</div>` : `<div style="color: #22c55e; margin-bottom: 1rem;"><i class="fa-solid fa-circle-check"></i> Còn hàng (Tồn: ${p.stock})</div>`;
+
+            const fallbackImg = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22300%22%20height%3D%22300%22%20viewBox%3D%220%200%20300%20300%22%3E%3Crect%20width%3D%22300%22%20height%3D%22300%22%20fill%3D%22%23f3f4f6%22%2F%3E%3Ctext%20x%3D%22150%22%20y%3D%22150%22%20font-family%3D%22sans-serif%22%20font-size%3D%2216%22%20fill%3D%22%239ca3af%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ECh%C6%B0a%20c%C3%B3%20%E1%BA%A3nh%3C%2Ftext%3E%3C%2Fsvg%3E';
+            const mainImgSrc = p.image || p.imageUrl || fallbackImg;
+
+            const html = `
+                <div class="product-detail-grid">
+                    <div class="product-gallery">
+                        <img src="${mainImgSrc}" id="main-img" class="main-image">
+                        <div class="thumbnail-list">${thumbs}</div>
+                    </div>
+                    <div class="product-info">
+                        <div class="p-brand">Thương hiệu: <strong>${p.brand}</strong> | Mã SP: ${p.id}</div>
+                        <h1>${p.name}</h1>
+                        <div style="color: #f59e0b; margin-bottom: 1rem;">★★★★★ <span style="color:var(--shop-text-muted);">(${p.rating} - Đã bán ${p.sold})</span></div>
+                        
+                        ${statusHtml}
+
+                        <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">Quy cách: <strong>${p.unit}</strong></div>
+                        <div style="font-size: 0.9rem;">Danh mục: <strong>${p.category}</strong></div>
+
+                        <div class="p-price-row">
+                            <div class="p-price">${App.formatCurrency(p.price)}</div>
+                            ${discountHtml}
+                        </div>
+
+                        <div class="p-actions">
+                            <div class="qty-selector">
+                                <button class="qty-btn" onclick="const i=document.getElementById('qty'); i.value=Math.max(1, i.value-1)">-</button>
+                                <input type="number" id="qty" class="qty-input" value="1" min="1" max="${p.stock}">
+                                <button class="qty-btn" onclick="const i=document.getElementById('qty'); i.value=Math.min(${p.stock}, parseInt(i.value)+1)">+</button>
+                            </div>
+                            <div style="display:flex; gap:10px; flex:1;">
+                                <button class="p-btn-buy" ${p.stock === 0 ? 'disabled' : ''} style="flex:1; background:var(--shop-primary); color:white; border:1px solid var(--shop-primary);" onclick="Cart.add('${p.id}', parseInt(document.getElementById('qty').value), event)">
+                                    ${p.stock === 0 ? 'HẾT HÀNG' : 'THÊM VÀO GIỎ HÀNG'}
+                                </button>
+                                <button class="p-btn-buy" ${p.stock === 0 ? 'disabled' : ''} style="flex:1; background:#ea580c; color:white; border:1px solid #ea580c;" onclick="Cart.buyNow('${p.id}', parseInt(document.getElementById('qty').value))">
+                                    MUA NGAY
+                                </button>
+                            </div>
+                            <button style="background:var(--shop-bg); border:1px solid var(--shop-border); border-radius:4px; padding: 0 15px; cursor:pointer;" onclick="Wishlist.toggle('${p.id}', this)"><i class="fa-solid fa-heart"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('product-detail-container').innerHTML = html;
+
+            // Tabs content
+            document.getElementById('tab-desc').innerHTML = p.description || 'Chưa có mô tả.';
+            document.getElementById('tab-ingredient').innerHTML = p.ingredient || 'Chưa có thông tin.';
+            document.getElementById('tab-usage').innerHTML = p.usage || 'Chưa có thông tin.';
+        });
+
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+    </script>
+<script src="../js/shop-ai.js"></script>
+</body>
+</html>

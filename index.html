@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Pharmacy POS & Management</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        /* Landing Page specific styles */
+        body {
+            background-color: var(--bg-surface);
+        }
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: var(--spacing-xl);
+            background: linear-gradient(135deg, var(--bg-surface) 0%, var(--primary-light) 100%);
+        }
+        .hero-icon {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-md);
+        }
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+            max-width: 800px;
+        }
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xl);
+            max-width: 600px;
+        }
+        .hero-actions {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+        .btn-large {
+            padding: 0.75rem 2rem;
+            font-size: 1.125rem;
+        }
+        
+        /* Features preview */
+        .features {
+            display: flex;
+            gap: var(--spacing-xl);
+            margin-top: var(--spacing-xxl);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .feature-card {
+            background: var(--bg-surface);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            width: 250px;
+            text-align: left;
+            transition: transform 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            margin-bottom: var(--spacing-sm);
+        }
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+        .feature-desc {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero-section">
+        <i class="fa-solid fa-notes-medical hero-icon"></i>
+        <h1 class="hero-title">Quản lý nhà thuốc thông minh hơn với AI</h1>
+        <p class="hero-subtitle">Quản lý sản phẩm, bán hàng, tồn kho và dữ liệu nhà thuốc trên một nền tảng chuyên nghiệp, hiện đại.</p>
+        
+        <div class="hero-actions" style="flex-wrap: wrap; justify-content: center;">
+            <a href="pages/login.html" class="btn btn-primary btn-large">
+                <i class="fa-solid fa-right-to-bracket"></i> Dành cho Nhân viên (Admin/POS)
+            </a>
+            <a href="pages/shop.html" class="btn btn-large" style="background-color: #f97316; color: white; border: none;">
+                <i class="fa-solid fa-bag-shopping"></i> Dành cho Khách hàng (Mua thuốc Online)
+            </a>
+            <button class="btn btn-outline btn-large" onclick="resetDemoData()">
+                <i class="fa-solid fa-rotate-right"></i> Reset Demo Data
+            </button>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <i class="fa-solid fa-cash-register feature-icon"></i>
+                <h3 class="feature-title">Smart POS</h3>
+                <p class="feature-desc">Giao diện bán hàng tối ưu, xử lý nhanh chóng.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fa-solid fa-boxes-stacked feature-icon"></i>
+                <h3 class="feature-title">Inventory</h3>
+                <p class="feature-desc">Quản lý tồn kho, lô thuốc và cảnh báo hết hạn.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fa-solid fa-robot feature-icon color-primary"></i>
+                <h3 class="feature-title">AI Insights</h3>
+                <p class="feature-desc">Phân tích kinh doanh và gợi ý bằng AI thông minh.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fa-solid fa-chart-pie feature-icon" style="color: var(--warning-color)"></i>
+                <h3 class="feature-title">Reports</h3>
+                <p class="feature-desc">Báo cáo doanh thu và lợi nhuận trực quan.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/mock-data.js"></script>
+    <script>
+        function resetDemoData() {
+            if(confirm('Bạn có chắc chắn muốn khôi phục dữ liệu demo ban đầu?')) {
+                Storage.clearAll();
+                MockData.initialize();
+                alert('Khôi phục dữ liệu thành công!');
+            }
+        }
+        
+        // Khởi tạo mock data nếu chưa có
+        document.addEventListener('DOMContentLoaded', () => {
+            if(!Storage.get('products')) {
+                MockData.initialize();
+            }
+        });
+    </script>
+</body>
+</html>

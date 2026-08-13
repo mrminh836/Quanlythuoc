@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt hàng thành công - Smart Pharmacy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/shop.css">
+</head>
+<body class="shop-layout">
+
+    <header class="shop-header">
+        <div class="shop-header-top">
+            <a href="shop.html" class="shop-logo"><i class="fa-solid fa-notes-medical"></i> Smart Pharmacy</a>
+        </div>
+    </header>
+
+    <div class="shop-container" style="max-width: 600px; text-align: center; margin-top: 4rem;">
+        <i class="fa-solid fa-circle-check" style="font-size: 5rem; color: #22c55e; margin-bottom: 1.5rem;"></i>
+        <h1 style="color: var(--shop-text); margin-bottom: 0.5rem;">Đặt hàng thành công!</h1>
+        <p style="color: var(--shop-text-muted); margin-bottom: 2rem;">Cảm ơn bạn đã tin tưởng và mua sắm tại Smart Pharmacy. Đơn hàng của bạn đang được xử lý.</p>
+        
+        <div style="background: var(--shop-surface); padding: 2rem; border-radius: var(--shop-radius); border: 1px dashed var(--shop-border); margin-bottom: 2rem;">
+            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">Mã đơn hàng của bạn:</div>
+            <div id="os-id" style="font-size: 1.5rem; font-weight: bold; color: var(--shop-primary);">#DH...</div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <button onclick="window.location.href='my-orders.html'" style="padding: 12px 24px; background: var(--shop-bg); border: 1px solid var(--shop-border); border-radius: var(--shop-radius); font-weight: 600; cursor: pointer;">Xem đơn hàng</button>
+            <button onclick="window.location.href='shop.html'" style="padding: 12px 24px; background: var(--shop-primary); color: white; border: none; border-radius: var(--shop-radius); font-weight: 600; cursor: pointer;">Tiếp tục mua sắm</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if(id) {
+                document.getElementById('os-id').innerText = '#' + id;
+            }
+        });
+    </script>
+</body>
+</html>

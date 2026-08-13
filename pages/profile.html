@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ cá nhân - Smart Pharmacy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <style>
+        .profile-card { background: var(--bg-surface); padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); max-width: 600px; margin: 0 auto; text-align: center; }
+        .profile-avatar { width: 100px; height: 100px; background: var(--primary-light); color: var(--primary-color); font-size: 3rem; font-weight: bold; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin: 0 auto 1.5rem; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; text-align: left; margin-top: 2rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-secondary); }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--radius-md); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="app-sidebar"></aside>
+        
+        <main class="main-content">
+            <header class="header" id="app-header"></header>
+            
+            <div class="content-area">
+                <div class="profile-card">
+                    <div class="profile-avatar" id="prof-avatar">A</div>
+                    <h2 id="prof-name-title">Tên User</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;" id="prof-role">ADMIN</p>
+                    <span class="badge badge-success">Đang hoạt động</span>
+
+                    <form id="profile-form" onsubmit="saveProfile(event)">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Họ và tên</label>
+                                <input type="text" id="prof-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Số điện thoại</label>
+                                <input type="text" id="prof-phone" required>
+                            </div>
+                            <div class="form-group" style="grid-column: 1/-1">
+                                <label>Email</label>
+                                <input type="email" id="prof-email" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Mật khẩu mới</label>
+                                <input type="password" id="prof-pass" placeholder="Bỏ trống nếu không đổi">
+                            </div>
+                            <div class="form-group">
+                                <label>Nhập lại mật khẩu</label>
+                                <input type="password" id="prof-pass2" placeholder="Bỏ trống nếu không đổi">
+                            </div>
+                        </div>
+                        <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
+                            <button type="button" class="btn btn-outline" onclick="loadProfile()">Hủy</button>
+                            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Lưu thông tin</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/storage.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            App.requireAuth();
+            Layout.renderSidebar('');
+            Layout.renderHeader('Hồ sơ cá nhân');
+            loadProfile();
+        });
+
+        function loadProfile() {
+            const user = App.getCurrentUser();
+            if(!user) return;
+            
+            document.getElementById('prof-avatar').innerText = user.name.charAt(0);
+            document.getElementById('prof-name-title').innerText = user.name;
+            document.getElementById('prof-role').innerText = user.role;
+
+            document.getElementById('prof-name').value = user.name;
+            document.getElementById('prof-phone').value = user.phone || '';
+            document.getElementById('prof-email').value = user.email;
+            document.getElementById('prof-pass').value = '';
+            document.getElementById('prof-pass2').value = '';
+        }
+
+        function saveProfile(e) {
+            e.preventDefault();
+            const pass1 = document.getElementById('prof-pass').value;
+            const pass2 = document.getElementById('prof-pass2').value;
+            
+            if(pass1 && pass1 !== pass2) {
+                App.showToast('Mật khẩu không khớp!', 'error');
+                return;
+            }
+
+            App.showLoading();
+            setTimeout(() => {
+                const user = App.getCurrentUser();
+                user.name = document.getElementById('prof-name').value;
+                user.phone = document.getElementById('prof-phone').value;
+                user.email = document.getElementById('prof-email').value;
+                if(pass1) user.password = pass1;
+                
+                // Update in users array
+                const users = Storage.get('users') || [];
+                const idx = users.findIndex(u => u.id === user.id);
+                if(idx !== -1) {
+                    users[idx] = user;
+                    Storage.set('users', users);
+                }
+                
+                Storage.set('currentUser', user); // update session
+                
+                App.hideLoading();
+                App.showToast('Đã lưu hồ sơ!', 'success');
+                loadProfile();
+                Layout.renderHeader('Hồ sơ cá nhân'); // Refresh header name
+            }, 800);
+        }
+    </script>
+</body>
+</html>

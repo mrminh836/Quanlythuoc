@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Smart Pharmacy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <style>
+        body {
+            background-color: var(--bg-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: var(--spacing-lg);
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+        .login-logo {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-sm);
+        }
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .password-wrapper {
+            position: relative;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+        .password-toggle:hover {
+            color: var(--primary-color);
+        }
+        .login-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            font-size: 0.875rem;
+        }
+        .demo-accounts {
+            margin-top: var(--spacing-xl);
+            padding-top: var(--spacing-md);
+            border-top: 1px dashed var(--border-color);
+            font-size: 0.875rem;
+        }
+        .demo-account-item {
+            margin-bottom: var(--spacing-xs);
+            cursor: pointer;
+            color: var(--info-color);
+        }
+        .demo-account-item:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container card">
+        <div class="card-body">
+            <div class="login-header">
+                <i class="fa-solid fa-notes-medical login-logo"></i>
+                <h1 class="login-title">Smart Pharmacy</h1>
+                <p class="text-secondary">Đăng nhập vào hệ thống</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="Nhập email..." required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Mật khẩu</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" class="form-control" placeholder="Nhập mật khẩu..." required>
+                        <i class="fa-solid fa-eye password-toggle" id="togglePassword"></i>
+                    </div>
+                </div>
+                
+                <div class="login-actions">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="remember">
+                        <span>Nhớ mật khẩu</span>
+                    </label>
+                    <a href="#" class="color-primary" onclick="alert('Đây là bản demo, mật khẩu là 123'); return false;">Quên mật khẩu?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Đăng nhập</button>
+            </form>
+
+            <div class="demo-accounts text-secondary">
+                <p style="font-weight: 600; margin-bottom: 0.5rem;">Tài khoản Demo (Password: 123):</p>
+                <div class="demo-account-item" onclick="fillDemo('admin@pharmacy.local')">admin@pharmacy.local (Admin)</div>
+                <div class="demo-account-item" onclick="fillDemo('pharmacist@pharmacy.local')">pharmacist@pharmacy.local (Dược sĩ)</div>
+                <div class="demo-account-item" onclick="fillDemo('cashier@pharmacy.local')">cashier@pharmacy.local (Thu ngân)</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/storage.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        // Nếu đã đăng nhập, chuyển về dashboard
+        if (Auth.getCurrentUser()) {
+            window.location.href = 'dashboard.html';
+        }
+
+        // Hiện/ẩn mật khẩu
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        // Điền nhanh demo
+        function fillDemo(email) {
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = '123';
+        }
+
+        // Xử lý submit
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+
+            if (Auth.login(email, password, remember)) {
+                App.showToast('Đăng nhập thành công!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

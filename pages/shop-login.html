@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập / Đăng ký - Smart Pharmacy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/shop.css">
+    <style>
+        .auth-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 100px);
+            padding: 2rem;
+        }
+        .auth-container {
+            background: var(--shop-surface);
+            width: 100%;
+            max-width: 450px;
+            border-radius: var(--shop-radius);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 2.5rem;
+            border: 1px solid var(--shop-border);
+        }
+        .auth-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--shop-primary);
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--shop-text);
+            font-size: 0.9rem;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--shop-border);
+            border-radius: 6px;
+            font-family: inherit;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--shop-primary);
+        }
+        .btn-auth {
+            width: 100%;
+            background: var(--shop-primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-auth:hover {
+            background: var(--shop-secondary);
+        }
+        .auth-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        .auth-links a {
+            color: var(--shop-primary);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+        .d-none {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="shop-layout">
+
+    <header class="shop-header">
+        <div class="shop-header-top" style="justify-content: center;">
+            <a href="shop.html" class="shop-logo"><i class="fa-solid fa-notes-medical"></i> Smart Pharmacy</a>
+        </div>
+    </header>
+
+    <div class="auth-wrapper">
+        <!-- Đăng nhập -->
+        <div class="auth-container" id="login-form">
+            <h2 class="auth-title">Đăng nhập</h2>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email hoặc số điện thoại</label>
+                    <input type="text" class="form-control" id="login-email" required placeholder="Nhập email hoặc SĐT">
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <input type="password" class="form-control" id="login-pw" required placeholder="Nhập mật khẩu">
+                </div>
+                <button type="submit" class="btn-auth">Đăng nhập</button>
+                <div class="auth-links">
+                    <a onclick="switchForm('forgot-form')">Quên mật khẩu?</a>
+                    <a onclick="switchForm('register-form')">Đăng ký ngay</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Đăng ký -->
+        <div class="auth-container d-none" id="register-form">
+            <h2 class="auth-title">Đăng ký tài khoản</h2>
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>Họ và tên</label>
+                    <input type="text" class="form-control" required placeholder="Nhập họ và tên">
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <input type="tel" class="form-control" required placeholder="Nhập số điện thoại">
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <input type="password" class="form-control" required placeholder="Tạo mật khẩu (Ít nhất 6 ký tự)">
+                </div>
+                <button type="submit" class="btn-auth">Đăng ký</button>
+                <div class="auth-links" style="justify-content: center;">
+                    <span style="color: var(--shop-text-muted);">Đã có tài khoản? </span>&nbsp;<a onclick="switchForm('login-form')">Đăng nhập</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Quên mật khẩu -->
+        <div class="auth-container d-none" id="forgot-form">
+            <h2 class="auth-title">Khôi phục mật khẩu</h2>
+            <p style="color: var(--shop-text-muted); font-size: 0.9rem; text-align: center; margin-bottom: 1.5rem;">
+                Nhập email hoặc số điện thoại của bạn, chúng tôi sẽ gửi mã khôi phục.
+            </p>
+            <form onsubmit="handleForgot(event)">
+                <div class="form-group">
+                    <label>Email / Số điện thoại</label>
+                    <input type="text" class="form-control" required placeholder="Nhập email hoặc số điện thoại">
+                </div>
+                <button type="submit" class="btn-auth">Gửi mã khôi phục</button>
+                <div class="auth-links" style="justify-content: center;">
+                    <a onclick="switchForm('login-form')"><i class="fa-solid fa-arrow-left"></i> Quay lại Đăng nhập</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/storage.js"></script>
+    <script src="../js/app.js"></script>
+    <script>
+        function switchForm(formId) {
+            document.getElementById('login-form').classList.add('d-none');
+            document.getElementById('register-form').classList.add('d-none');
+            document.getElementById('forgot-form').classList.add('d-none');
+            document.getElementById(formId).classList.remove('d-none');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            // Mock login logic
+            Storage.set('shop_user', {
+                name: 'Khách Hàng',
+                phone: document.getElementById('login-email').value,
+                isLoggedIn: true
+            });
+            App.showToast('Đăng nhập thành công!', 'success');
+            setTimeout(() => {
+                window.location.href = 'shop.html';
+            }, 1000);
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            App.showToast('Đăng ký thành công! Đang chuyển hướng...', 'success');
+            setTimeout(() => {
+                switchForm('login-form');
+            }, 1500);
+        }
+
+        function handleForgot(e) {
+            e.preventDefault();
+            App.showToast('Mã khôi phục đã được gửi!', 'info');
+            setTimeout(() => {
+                switchForm('login-form');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cài đặt hệ thống - Smart Pharmacy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <style>
+        .settings-card { background: var(--bg-surface); padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); max-width: 600px; margin: 0 auto; }
+        .setting-group { margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+        .setting-label { font-weight: 500; color: var(--text-primary); margin-bottom: 0.25rem; }
+        .setting-desc { font-size: 0.875rem; color: var(--text-muted); }
+        .form-select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-md); outline: none; background: var(--bg-surface); color: var(--text-primary); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="app-sidebar"></aside>
+        
+        <main class="main-content">
+            <header class="header" id="app-header"></header>
+            
+            <div class="content-area">
+                <div class="settings-card">
+                    <h2 style="margin-bottom: 2rem; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-gear text-primary"></i> Cài đặt hệ thống
+                    </h2>
+
+                    <div class="setting-group">
+                        <div>
+                            <div class="setting-label">Giao diện (Theme)</div>
+                            <div class="setting-desc">Chuyển đổi giao diện Sáng / Tối (Demo)</div>
+                        </div>
+                        <select id="setting-theme" class="form-select" onchange="previewTheme()">
+                            <option value="light">Sáng (Light)</option>
+                            <option value="dark">Tối (Dark) - Demo</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-group">
+                        <div>
+                            <div class="setting-label">Ngôn ngữ</div>
+                            <div class="setting-desc">Ngôn ngữ hiển thị chính</div>
+                        </div>
+                        <select id="setting-lang" class="form-select">
+                            <option value="vi">Tiếng Việt</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-group">
+                        <div>
+                            <div class="setting-label">Email Notifications</div>
+                            <div class="setting-desc">Nhận cảnh báo tồn kho qua email</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="setting-email">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-group" style="border-bottom: none;">
+                        <div>
+                            <div class="setting-label">Push Notifications</div>
+                            <div class="setting-desc">Nhận thông báo đơn hàng mới trình duyệt</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="setting-push">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem; justify-content: flex-end;">
+                        <button class="btn btn-outline" onclick="loadSettings()">Khôi phục</button>
+                        <button class="btn btn-primary" onclick="saveSettings()">Lưu thay đổi</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/storage.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            App.requireAuth();
+            Layout.renderSidebar('settings');
+            Layout.renderHeader('Cài đặt');
+            loadSettings();
+        });
+
+        function loadSettings() {
+            const settings = Storage.get('settings') || { theme: 'light', language: 'vi', notiEmail: true, notiPush: true };
+            document.getElementById('setting-theme').value = settings.theme;
+            document.getElementById('setting-lang').value = settings.language;
+            document.getElementById('setting-email').checked = settings.notiEmail;
+            document.getElementById('setting-push').checked = settings.notiPush;
+            previewTheme();
+        }
+
+        function saveSettings() {
+            App.showLoading();
+            setTimeout(() => {
+                const settings = {
+                    theme: document.getElementById('setting-theme').value,
+                    language: document.getElementById('setting-lang').value,
+                    notiEmail: document.getElementById('setting-email').checked,
+                    notiPush: document.getElementById('setting-push').checked
+                };
+                Storage.set('settings', settings);
+                App.hideLoading();
+                App.showToast('Đã lưu cài đặt thành công!', 'success');
+            }, 800);
+        }
+
+        function previewTheme() {
+            const val = document.getElementById('setting-theme').value;
+            if(val === 'dark') {
+                document.body.style.filter = 'invert(1) hue-rotate(180deg)';
+            } else {
+                document.body.style.filter = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

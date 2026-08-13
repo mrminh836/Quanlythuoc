@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tồn kho & Lô - Smart Pharmacy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <style>
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: var(--spacing-lg);
+        }
+        .tab-btn {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .expiry-critical { color: var(--danger-color); font-weight: bold; }
+        .expiry-warning { color: var(--warning-color); font-weight: bold; }
+        .expiry-good { color: var(--success-color); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="app-sidebar" id="app-sidebar"></aside>
+        <main class="app-main">
+            <header class="app-header" id="app-header"></header>
+
+            <div class="page-content">
+                <div class="page-header">
+                    <h1 class="page-title">Quản lý Tồn Kho & Lô (Batches)</h1>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab-btn active" onclick="switchTab('inventory', this)">Tổng quan Tồn Kho</div>
+                    <div class="tab-btn" onclick="switchTab('batches', this)">Quản lý Lô & Hạn sử dụng</div>
+                </div>
+
+                <!-- Tồn kho -->
+                <div id="tab-inventory" class="tab-content active">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                        <div class="card card-body" style="border-left: 4px solid var(--info-color);">
+                            <div class="text-secondary">Tổng số lượng sản phẩm trong kho</div>
+                            <h2 style="font-size: 2rem; margin-top: 0.5rem;" id="inv-total-qty">0</h2>
+                        </div>
+                        <div class="card card-body" style="border-left: 4px solid var(--warning-color);">
+                            <div class="text-secondary">Sản phẩm chạm mức tồn tối thiểu</div>
+                            <h2 style="font-size: 2rem; margin-top: 0.5rem;" id="inv-low-qty">0</h2>
+                        </div>
+                        <div class="card card-body" style="border-left: 4px solid var(--primary-color);">
+                            <div class="text-secondary">Tổng giá trị tồn kho ước tính</div>
+                            <h2 style="font-size: 2rem; margin-top: 0.5rem; color: var(--primary-color);" id="inv-total-value">0 ₫</h2>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã SP</th>
+                                        <th>Tên sản phẩm</th>
+                                        <th>Tồn hiện tại</th>
+                                        <th>Tồn tối thiểu</th>
+                                        <th>Giá nhập (ước tính)</th>
+                                        <th>Tổng giá trị</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventory-list">
+                                    <!-- Rendered by inventory.js -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Batches -->
+                <div id="tab-batches" class="tab-content">
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            Danh sách lô thuốc
+                            <button class="btn btn-primary btn-sm" onclick="window.location.href='batches.html'">Quản lý Lô Chi Tiết</button>
+                        </div>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã Lô (Batch ID)</th>
+                                        <th>Sản phẩm</th>
+                                        <th>Ngày SX</th>
+                                        <th>Hạn sử dụng</th>
+                                        <th>Số lượng lô</th>
+                                        <th>Trạng thái HSD</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="batches-list">
+                                    <!-- Rendered by inventory.js -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/storage.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/components.js"></script>
+    <script>
+        Auth.requireAuth();
+        if(!Auth.hasPermission('inventory')) {
+            window.location.href = 'dashboard.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Layout.renderSidebar('inventory');
+            Layout.renderHeader('Tồn kho & Lô');
+            Inventory.init();
+        });
+
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            element.classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        const Inventory = {
+            products: [],
+            
+            init: function() {
+                this.products = Storage.get('products') || [];
+                this.renderInventory();
+                this.renderBatches(); // mock logic
+            },
+            
+            renderInventory: function() {
+                let totalQty = 0;
+                let lowQtyCount = 0;
+                let totalValue = 0;
+                let html = '';
+
+                this.products.forEach(p => {
+                    totalQty += p.stock;
+                    if (p.stock <= p.minStock && p.stock > 0) lowQtyCount++;
+                    if (p.stock === 0) lowQtyCount++; // also alert out of stock
+
+                    const estImportPrice = p.price * 0.7; // mock import price = 70% retail
+                    totalValue += (estImportPrice * p.stock);
+
+                    const isOutOfStock = p.stock <= 0;
+                    const stockClass = isOutOfStock ? 'badge-danger' : (p.stock <= p.minStock ? 'badge-warning' : 'badge-success');
+                    const stockText = isOutOfStock ? 'Hết hàng' : (p.stock <= p.minStock ? 'Sắp hết' : 'Đủ hàng');
+
+                    html += `
+                        <tr>
+                            <td>${p.id}</td>
+                            <td style="font-weight: 500;">${p.name}</td>
+                            <td style="font-weight: 600;">${p.stock}</td>
+                            <td>${p.minStock}</td>
+                            <td>${App.formatCurrency(estImportPrice)}</td>
+                            <td>${App.formatCurrency(estImportPrice * p.stock)}</td>
+                            <td><span class="badge ${stockClass}">${stockText}</span></td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('inventory-list').innerHTML = html;
+                document.getElementById('inv-total-qty').innerText = totalQty.toLocaleString('vi-VN');
+                document.getElementById('inv-low-qty').innerText = lowQtyCount;
+                document.getElementById('inv-total-value').innerText = App.formatCurrency(totalValue);
+            },
+
+            renderBatches: function() {
+                const batches = Storage.get('batches') || [];
+                let html = '';
+                
+                batches.forEach(b => {
+                    let statusClass = 'expiry-good';
+                    let statusText = 'Bình thường';
+                    
+                    if (b.status === 'EXPIRED') {
+                        statusClass = 'expiry-critical';
+                        statusText = 'Đã hết hạn';
+                    } else if (b.status === 'EXPIRING') {
+                        statusClass = 'expiry-warning';
+                        statusText = 'Sắp hết hạn';
+                    }
+
+                    html += `
+                        <tr>
+                            <td style="font-family: monospace; font-weight: 600;">${b.id}</td>
+                            <td>${b.productName}</td>
+                            <td>${b.manufacturingDate}</td>
+                            <td class="${statusClass}">${b.expiryDate}</td>
+                            <td>${b.quantity}</td>
+                            <td><span class="badge" style="background-color: var(--bg-main); color: var(--text-primary); border: 1px solid currentColor;">${statusText}</span></td>
+                        </tr>
+                    `;
+                });
+                document.getElementById('batches-list').innerHTML = html || `<tr><td colspan="6" style="text-align:center;">Không có dữ liệu lô</td></tr>`;
+            }
+        };
+    </script>
+</body>
+</html>

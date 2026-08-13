@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán - Smart Pharmacy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/shop.css">
+    <style>
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+        .checkout-section {
+            background: var(--shop-surface);
+            padding: 1.5rem;
+            border-radius: var(--shop-radius);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .checkout-section h3 { margin-top: 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--shop-border); padding-bottom: 0.5rem; }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 4px; font-weight: 500; font-size: 0.875rem; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--shop-border); border-radius: 4px; font-family: inherit; box-sizing: border-box; }
+        .form-control:focus { outline: none; border-color: var(--shop-primary); }
+
+        .payment-method {
+            display: flex; align-items: center; gap: 10px; padding: 15px; border: 1px solid var(--shop-border); border-radius: 4px; margin-bottom: 10px; cursor: pointer;
+        }
+        .payment-method:hover { background: var(--shop-bg); }
+        .payment-method input { margin: 0; }
+
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
+        .summary-total { display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: bold; color: var(--shop-primary); margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--shop-border); }
+
+        .btn-checkout {
+            width: 100%; background: var(--shop-accent); color: white; border: none; padding: 15px; border-radius: var(--shop-radius); font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 1rem;
+        }
+        .btn-checkout:hover { opacity: 0.9; }
+
+        @media (max-width: 768px) {
+            .checkout-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="shop-layout">
+
+    <header class="shop-header">
+        <div class="shop-header-top">
+            <a href="shop.html" class="shop-logo"><i class="fa-solid fa-notes-medical"></i> Smart Pharmacy</a>
+            <div style="flex:1; text-align:center; font-weight:bold; font-size:1.25rem; color:var(--shop-text);">Tiến hành thanh toán</div>
+            <a href="shop.html" style="color:var(--shop-primary); text-decoration:none; font-weight:500;">Tiếp tục mua sắm</a>
+        </div>
+    </header>
+
+    <div class="shop-container">
+        <div class="checkout-grid">
+            <!-- Thông tin -->
+            <div>
+                <div class="checkout-section">
+                    <h3>1. Thông tin người nhận</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Họ và tên *</label>
+                            <input type="text" id="co-name" class="form-control" placeholder="Nhập họ và tên">
+                            <div id="err-name" style="color: #ef4444; font-size: 0.8rem; margin-top: 4px; display: none;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Số điện thoại *</label>
+                            <input type="tel" id="co-phone" class="form-control" placeholder="Nhập số điện thoại">
+                            <div id="err-phone" style="color: #ef4444; font-size: 0.8rem; margin-top: 4px; display: none;"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Địa chỉ giao hàng *</label>
+                        <input type="text" id="co-address" class="form-control" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố">
+                        <div id="err-address" style="color: #ef4444; font-size: 0.8rem; margin-top: 4px; display: none;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Ghi chú (Tùy chọn)</label>
+                        <textarea id="co-note" class="form-control" rows="3" placeholder="Ghi chú thêm về đơn hàng"></textarea>
+                    </div>
+                </div>
+
+                <div class="checkout-section">
+                    <h3>2. Phương thức thanh toán</h3>
+                    <label class="payment-method">
+                        <input type="radio" name="payment" value="COD" checked>
+                        <i class="fa-solid fa-money-bill-1" style="font-size:1.5rem; color:#22c55e;"></i>
+                        <div>
+                            <strong>Thanh toán khi nhận hàng (COD)</strong>
+                            <div style="font-size:0.8rem; color:var(--shop-text-muted);">Thanh toán bằng tiền mặt khi giao hàng</div>
+                        </div>
+                    </label>
+                    <label class="payment-method">
+                        <input type="radio" name="payment" value="BANK">
+                        <i class="fa-solid fa-building-columns" style="font-size:1.5rem; color:#3b82f6;"></i>
+                        <div>
+                            <strong>Chuyển khoản ngân hàng</strong>
+                            <div style="font-size:0.8rem; color:var(--shop-text-muted);">Chuyển khoản qua quét mã QR</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div>
+                <div class="checkout-section" style="position: sticky; top: 100px;">
+                    <h3>Đơn hàng của bạn</h3>
+                    <div id="co-items" style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--shop-border); padding-bottom: 1rem;">
+                        <!-- Injected -->
+                    </div>
+                    <div class="summary-item">
+                        <span>Tạm tính:</span>
+                        <span id="co-subtotal">0 ₫</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Phí vận chuyển:</span>
+                        <span>Miễn phí</span>
+                    </div>
+                    <div class="summary-total">
+                        <span>Tổng cộng:</span>
+                        <span id="co-total">0 ₫</span>
+                    </div>
+                    <button class="btn-checkout" onclick="Checkout.placeOrder()">Đặt hàng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/storage.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/checkout.js"></script>
+<script src="../js/shop-ai.js"></script>
+</body>
+</html>

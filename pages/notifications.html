@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông báo - Smart Pharmacy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <style>
+        .noti-card { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1rem; display: flex; gap: 1rem; align-items: flex-start; cursor: pointer; transition: background 0.2s; }
+        .noti-card:hover { background: var(--bg-hover); }
+        .noti-card.unread { background: #eff6ff; border-left: 4px solid var(--primary-color); }
+        .noti-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem; flex-shrink: 0; }
+        .noti-info { background: var(--primary-color); }
+        .noti-warning { background: var(--warning-color); }
+        .noti-error { background: var(--danger-color); }
+        .noti-success { background: var(--success-color); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="app-sidebar"></aside>
+        
+        <main class="main-content">
+            <header class="header" id="app-header"></header>
+            
+            <div class="content-area">
+                <div class="page-header">
+                    <h2>Tất cả thông báo</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-outline" onclick="markAllRead()"><i class="fa-solid fa-check-double"></i> Đánh dấu tất cả đã đọc</button>
+                    </div>
+                </div>
+
+                <div id="noti-full-list">
+                    <!-- Injected -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/storage.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            App.requireAuth();
+            Layout.renderSidebar('');
+            Layout.renderHeader('Thông báo');
+            renderNotificationsPage();
+        });
+
+        function renderNotificationsPage() {
+            const notis = Storage.get('notifications') || [];
+            const container = document.getElementById('noti-full-list');
+            
+            if(notis.length === 0) {
+                container.innerHTML = `<div class="empty-state">Không có thông báo nào.</div>`;
+                return;
+            }
+
+            let html = '';
+            notis.forEach(n => {
+                let icon = 'fa-bell';
+                if(n.type === 'error') icon = 'fa-circle-xmark';
+                if(n.type === 'warning') icon = 'fa-triangle-exclamation';
+                if(n.type === 'success') icon = 'fa-check-circle';
+
+                html += `
+                    <div class="noti-card ${n.isRead ? '' : 'unread'}" onclick="readNoti('${n.id}')">
+                        <div class="noti-icon noti-${n.type}"><i class="fa-solid ${icon}"></i></div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 500; margin-bottom: 0.5rem; color: var(--text-primary);">${n.message}</div>
+                            <div style="font-size: 0.875rem; color: var(--text-muted);">${new Date(n.timestamp).toLocaleString('vi-VN')}</div>
+                        </div>
+                        <button class="btn btn-icon text-danger" onclick="event.stopPropagation(); deleteNoti('${n.id}')" title="Xóa"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function readNoti(id) {
+            const notis = Storage.get('notifications') || [];
+            const n = notis.find(x => x.id === id);
+            if(n) {
+                n.isRead = true;
+                Storage.set('notifications', notis);
+                renderNotificationsPage();
+                if(typeof Notifications !== 'undefined') Notifications.updateBadge();
+            }
+        }
+
+        function deleteNoti(id) {
+            App.showConfirm('Xóa thông báo này?', () => {
+                let notis = Storage.get('notifications') || [];
+                notis = notis.filter(x => x.id !== id);
+                Storage.set('notifications', notis);
+                renderNotificationsPage();
+                if(typeof Notifications !== 'undefined') Notifications.updateBadge();
+            });
+        }
+
+        function markAllRead() {
+            const notis = Storage.get('notifications') || [];
+            notis.forEach(n => n.isRead = true);
+            Storage.set('notifications', notis);
+            renderNotificationsPage();
+            if(typeof Notifications !== 'undefined') Notifications.updateBadge();
+        }
+    </script>
+</body>
+</html>

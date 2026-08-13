@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Thuốc - Smart Pharmacy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="app-sidebar" id="app-sidebar"></aside>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Header -->
+            <header class="app-header" id="app-header"></header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                <div class="page-header">
+                    <h1 class="page-title">Quản lý Sản phẩm / Thuốc</h1>
+                    <button class="btn btn-primary" onclick="ProductManager.openModal()">
+                        <i class="fa-solid fa-plus"></i> Thêm sản phẩm mới
+                    </button>
+                </div>
+
+                <div class="card" style="margin-bottom: var(--spacing-xl);">
+                    <div class="card-header" style="display: flex; gap: var(--spacing-md); background-color: transparent;">
+                        <div style="flex: 1; position: relative;">
+                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 10px; color: var(--text-muted);"></i>
+                            <input type="text" id="search-product" class="form-control" style="padding-left: 2.5rem;" placeholder="Tìm theo tên, mã hoặc hoạt chất...">
+                        </div>
+                        <select class="form-control" id="filter-category" style="width: 200px;">
+                            <option value="">Tất cả danh mục</option>
+                            <option value="Kháng sinh">Kháng sinh</option>
+                            <option value="Giảm đau, hạ sốt">Giảm đau, hạ sốt</option>
+                            <option value="Vitamin">Vitamin</option>
+                            <option value="Tiêu hóa">Tiêu hóa</option>
+                            <option value="Bù nước">Bù nước</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Mã SP</th>
+                                    <th>Tên thuốc</th>
+                                    <th>Danh mục</th>
+                                    <th>Đơn vị</th>
+                                    <th>Giá bán</th>
+                                    <th>Tồn kho</th>
+                                    <th>Trạng thái</th>
+                                    <th style="text-align: right;">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="product-list">
+                                <!-- Products rendered here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Phân trang ảo -->
+                    <div style="padding: var(--spacing-md); border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                        <span class="text-muted" style="font-size: 0.875rem;" id="pagination-info">Hiển thị 0 sản phẩm</span>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                            <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" disabled><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Thêm/Sửa Sản Phẩm -->
+    <div class="modal-overlay" id="product-modal">
+        <div class="modal" style="max-width: 700px;">
+            <div class="modal-header">
+                <span id="modal-title">Thêm sản phẩm mới</span>
+                <button class="modal-close" onclick="ProductManager.closeModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="product-form">
+                    <input type="hidden" id="edit-id">
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                        <div class="form-group">
+                            <label class="form-label">Mã thuốc *</label>
+                            <input type="text" id="p-id" class="form-control" required placeholder="VD: SP001">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tên thuốc *</label>
+                            <input type="text" id="p-name" class="form-control" required placeholder="Nhập tên thuốc...">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Hoạt chất chính</label>
+                        <input type="text" id="p-ingredient" class="form-control" placeholder="VD: Paracetamol 500mg">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                        <div class="form-group">
+                            <label class="form-label">Nhóm thuốc *</label>
+                            <select id="p-category" class="form-control" required>
+                                <option value="Kháng sinh">Kháng sinh</option>
+                                <option value="Giảm đau, hạ sốt">Giảm đau, hạ sốt</option>
+                                <option value="Vitamin">Vitamin</option>
+                                <option value="Tiêu hóa">Tiêu hóa</option>
+                                <option value="Bù nước">Bù nước</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Đơn vị *</label>
+                            <select id="p-unit" class="form-control" required>
+                                <option value="Hộp">Hộp</option>
+                                <option value="Vỉ">Vỉ</option>
+                                <option value="Viên">Viên</option>
+                                <option value="Lọ">Lọ</option>
+                                <option value="Gói">Gói</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--spacing-md);">
+                        <div class="form-group">
+                            <label class="form-label">Giá bán (VNĐ) *</label>
+                            <input type="number" id="p-price" class="form-control" required min="0" step="1000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tồn kho ban đầu</label>
+                            <input type="number" id="p-stock" class="form-control" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tồn tối thiểu</label>
+                            <input type="number" id="p-minstock" class="form-control" min="0" value="10">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Link ảnh sản phẩm (URL)</label>
+                        <input type="url" id="p-image" class="form-control" placeholder="https://example.com/image.jpg">
+                        <small class="text-muted" style="display:block; margin-top:4px;">Nhập link ảnh từ internet. Bỏ trống sẽ dùng ảnh mặc định.</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="ProductManager.closeModal()">Hủy</button>
+                <button class="btn btn-primary" onclick="ProductManager.saveProduct()"><i class="fa-solid fa-save"></i> Lưu sản phẩm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/storage.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/components.js"></script>
+    <script src="../js/products.js"></script>
+    <script>
+        Auth.requireAuth();
+        if(!Auth.hasPermission('products')) {
+            window.location.href = 'dashboard.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Layout.renderSidebar('products');
+            Layout.renderHeader('Danh sách Sản phẩm');
+            ProductManager.init();
+        });
+    </script>
+</body>
+</html>

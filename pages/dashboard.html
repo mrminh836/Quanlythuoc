@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Smart Pharmacy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .stat-card {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-lg);
+            gap: var(--spacing-md);
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .stat-icon.blue { background-color: var(--primary-light); color: var(--primary-color); }
+        .stat-icon.green { background-color: var(--secondary-light); color: var(--success-color); }
+        .stat-icon.yellow { background-color: #FEF3C7; color: var(--warning-color); }
+        .stat-icon.red { background-color: #FEE2E2; color: var(--danger-color); }
+        
+        .stat-content {
+            flex: 1;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        @media (max-width: 1024px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .list-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+        
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .list-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="app-sidebar" id="app-sidebar"></aside>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Header -->
+            <header class="app-header" id="app-header"></header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                <div class="page-header">
+                    <h1 class="page-title">Tổng quan kinh doanh</h1>
+                    <div style="display: flex; gap: var(--spacing-md);">
+                        <select id="dashboard-date-filter" class="form-control" style="width: auto;">
+                            <option value="today">Hôm nay</option>
+                            <option value="7days" selected>7 ngày qua</option>
+                            <option value="30days">30 ngày qua</option>
+                            <option value="thismonth">Tháng này</option>
+                            <option value="all">Tất cả thời gian</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="window.location.href='pos.html'">
+                            <i class="fa-solid fa-plus"></i> Tạo đơn mới
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stat-grid">
+                    <div class="card stat-card" style="cursor: pointer;" onclick="window.location.href='orders.html'">
+                        <div class="stat-icon blue">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Doanh thu</div>
+                            <div class="stat-value" id="revenue-today">0 ₫</div>
+                        </div>
+                    </div>
+                    <div class="card stat-card" style="cursor: pointer;" onclick="window.location.href='orders.html'">
+                        <div class="stat-icon green">
+                            <i class="fa-solid fa-file-invoice"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Số đơn hàng</div>
+                            <div class="stat-value" id="orders-today">0</div>
+                        </div>
+                    </div>
+                    <div class="card stat-card" style="cursor: pointer;" onclick="window.location.href='inventory.html'">
+                        <div class="stat-icon yellow">
+                            <i class="fa-solid fa-box-open"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Sản phẩm sắp hết</div>
+                            <div class="stat-value" id="low-stock-count">0</div>
+                        </div>
+                    </div>
+                    <div class="card stat-card" style="cursor: pointer;" onclick="window.location.href='batches.html'">
+                        <div class="stat-icon red">
+                            <i class="fa-solid fa-calendar-xmark"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Lô sắp/đã hết hạn</div>
+                            <div class="stat-value" id="expiring-count">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts & Lists -->
+                <div class="chart-grid">
+                    <!-- Revenue Chart -->
+                    <div class="card">
+                        <div class="card-header">
+                            Biểu đồ doanh thu 7 ngày qua
+                        </div>
+                        <div class="card-body" style="height: 300px;">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- AI Insights Mini -->
+                    <div class="card" style="border: 1px solid var(--primary-light);">
+                        <div class="card-header" style="background-color: var(--primary-light); color: var(--primary-color);">
+                            <i class="fa-solid fa-robot" style="margin-right: 8px;"></i> AI Insights
+                        </div>
+                        <div class="card-body list-group">
+                            <div class="list-item">
+                                <div>
+                                    <div style="font-weight: 500; font-size: 0.875rem;">Oresol sắp hết hàng</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary)">Tồn kho hiện tại: 0. Gợi ý nhập thêm 100 hộp.</div>
+                                </div>
+                                <span class="badge badge-warning">Cảnh báo</span>
+                            </div>
+                            <div class="list-item">
+                                <div>
+                                    <div style="font-weight: 500; font-size: 0.875rem;">Panadol bán chạy</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary)">Tăng 25% so với tuần trước.</div>
+                                </div>
+                                <span class="badge badge-success">Tích cực</span>
+                            </div>
+                            <div class="list-item">
+                                <div>
+                                    <div style="font-weight: 500; font-size: 0.875rem;">Amoxicillin sắp hết hạn</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary)">Lô LOT2024 hết hạn sau 15 ngày.</div>
+                                </div>
+                                <span class="badge badge-danger">Gấp</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        Đơn hàng gần đây
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Khách hàng</th>
+                                    <th>Thời gian</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-orders">
+                                <!-- Injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/storage.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/components.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script>
+        // Yêu cầu đăng nhập
+        Auth.requireAuth();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Render Layout
+            Layout.renderSidebar('dashboard');
+            Layout.renderHeader('Dashboard');
+
+            // Init Dashboard data
+            Dashboard.init();
+        });
+    </script>
+</body>
+</html>
