@@ -15,44 +15,68 @@ const Dashboard = {
     },
 
     bindEvents: function() {
-        const filterSelect = document.getElementById('dashboard-date-filter');
-        if(filterSelect) {
-            filterSelect.addEventListener('change', (e) => {
-                this.currentFilter = e.target.value;
-                this.updateData();
+        const dateInput = document.getElementById('dashboard-date-filter');
+        if(dateInput && typeof flatpickr !== 'undefined') {
+            const today = new Date();
+            const lastWeek = new Date();
+            lastWeek.setDate(today.getDate() - 7);
+
+            flatpickr(dateInput, {
+                mode: "range",
+                dateFormat: "d/m/Y",
+                locale: "vn",
+                defaultDate: [lastWeek, today],
+                onChange: (selectedDates) => {
+                    if (selectedDates.length === 2) {
+                        this.customStartDate = selectedDates[0];
+                        this.customEndDate = selectedDates[1];
+                        this.currentFilter = 'custom';
+                        this.updateData();
+                    }
+                }
             });
+            
+            // Set initial state
+            this.customStartDate = lastWeek;
+            this.customEndDate = today;
+            this.currentFilter = 'custom';
         }
     },
 
     updateData: function() {
         // Filter orders based on date
-        const today = new Date();
-        today.setHours(23, 59, 59, 999);
+        let endDate = new Date();
+        endDate.setHours(23, 59, 59, 999);
         let startDate = new Date();
         startDate.setHours(0,0,0,0);
 
-        if (this.currentFilter === 'today') {
+        if (this.currentFilter === 'custom' && this.customStartDate && this.customEndDate) {
+            startDate = new Date(this.customStartDate);
+            startDate.setHours(0,0,0,0);
+            endDate = new Date(this.customEndDate);
+            endDate.setHours(23,59,59,999);
+        } else if (this.currentFilter === 'today') {
             // startDate is already today
         } else if (this.currentFilter === '7days') {
-            startDate.setDate(today.getDate() - 7);
+            startDate.setDate(endDate.getDate() - 7);
         } else if (this.currentFilter === '30days') {
-            startDate.setDate(today.getDate() - 30);
+            startDate.setDate(endDate.getDate() - 30);
         } else if (this.currentFilter === 'thismonth') {
-            startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
         } else if (this.currentFilter === 'all') {
             startDate = new Date(0); // Epoch
         }
 
         const filteredOrders = this.orders.filter(o => {
             const d = new Date(o.timestamp);
-            return d >= startDate && d <= today && o.status === 'COMPLETED'; // Only completed orders for revenue
+            return d >= startDate && d <= endDate && o.status === 'COMPLETED'; // Only completed orders for revenue
         });
 
         // 1. Calculate Stats
         const revenue = filteredOrders.reduce((sum, o) => sum + o.summary.total, 0);
         const totalOrders = this.orders.filter(o => {
             const d = new Date(o.timestamp);
-            return d >= startDate && d <= today;
+            return d >= startDate && d <= endDate;
         }).length;
         
         const lowStock = this.products.filter(p => p.stock > 0 && p.stock <= p.minStock).length;

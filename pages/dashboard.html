@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Smart Pharmacy</title>
+    <title>Dashboard - AINA Pharmacy</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,8 +13,32 @@
     <link rel="stylesheet" href="../css/components.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
     <style>
+        /* Fix Flatpickr month/year header layout on Windows */
+        .flatpickr-current-month {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 0 !important;
+        }
+        .flatpickr-monthDropdown-months {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            background: transparent !important;
+            border: none !important;
+            font-weight: 600 !important;
+            padding: 0 5px !important;
+            height: auto !important;
+            margin: 0 !important;
+        }
+        .flatpickr-current-month .numInputWrapper {
+            width: 7ch !important;
+        }
+
         .stat-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -108,14 +132,12 @@
             <div class="page-content">
                 <div class="page-header">
                     <h1 class="page-title">Tổng quan kinh doanh</h1>
-                    <div style="display: flex; gap: var(--spacing-md);">
-                        <select id="dashboard-date-filter" class="form-control" style="width: auto;">
-                            <option value="today">Hôm nay</option>
-                            <option value="7days" selected>7 ngày qua</option>
-                            <option value="30days">30 ngày qua</option>
-                            <option value="thismonth">Tháng này</option>
-                            <option value="all">Tất cả thời gian</option>
-                        </select>
+                    <div style="display: flex; gap: var(--spacing-md); align-items: center;">
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <i class="fa-regular fa-calendar" style="position: absolute; left: 12px; color: var(--text-secondary); pointer-events: none;"></i>
+                            <input type="text" id="dashboard-date-filter" class="form-control" style="padding-left: 36px; padding-right: 32px; min-width: 250px; background: var(--bg-surface); cursor: pointer;" placeholder="Chọn khoảng thời gian">
+                            <i class="fa-solid fa-chevron-down" style="position: absolute; right: 12px; color: var(--text-secondary); font-size: 0.75rem; pointer-events: none;"></i>
+                        </div>
                         <button class="btn btn-primary" onclick="window.location.href='pos.html'">
                             <i class="fa-solid fa-plus"></i> Tạo đơn mới
                         </button>
@@ -205,28 +227,207 @@
                     </div>
                 </div>
                 
-                <div class="card">
-                    <div class="card-header">
-                        Đơn hàng gần đây
+                <div class="chart-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            Đơn hàng gần đây
+                        </div>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn</th>
+                                        <th>Khách hàng</th>
+                                        <th>Thời gian</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-orders">
+                                    <!-- Injected by JS -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="table-container">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Mã đơn</th>
-                                    <th>Khách hàng</th>
-                                    <th>Thời gian</th>
-                                    <th>Tổng tiền</th>
-                                    <th>Trạng thái</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recent-orders">
-                                <!-- Injected by JS -->
-                            </tbody>
-                        </table>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            Các loại thuốc bán chạy
+                        </div>
+                        <div class="card-body list-group">
+                            <div class="list-item">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 32px; height: 32px; border-radius: 4px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem;">#1</div>
+                                    <div>
+                                        <div style="font-weight: 500; font-size: 0.875rem;">Panadol Extra</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary)">Đã bán: 125 hộp</div>
+                                    </div>
+                                </div>
+                                <span style="font-size: 0.875rem; font-weight: 600; color: var(--primary-color);">4.500.000 ₫</span>
+                            </div>
+                            <div class="list-item">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 32px; height: 32px; border-radius: 4px; background: #f1f5f9; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem;">#2</div>
+                                    <div>
+                                        <div style="font-weight: 500; font-size: 0.875rem;">Vitamin C 1000mg</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary)">Đã bán: 85 lọ</div>
+                                    </div>
+                                </div>
+                                <span style="font-size: 0.875rem; font-weight: 600; color: var(--primary-color);">3.200.000 ₫</span>
+                            </div>
+                            <div class="list-item">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 32px; height: 32px; border-radius: 4px; background: #f1f5f9; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem;">#3</div>
+                                    <div>
+                                        <div style="font-weight: 500; font-size: 0.875rem;">Oresol Cam</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary)">Đã bán: 76 hộp</div>
+                                    </div>
+                                </div>
+                                <span style="font-size: 0.875rem; font-weight: 600; color: var(--primary-color);">1.850.000 ₫</span>
+                            </div>
+                            <div class="list-item">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 32px; height: 32px; border-radius: 4px; background: #f1f5f9; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem;">#4</div>
+                                    <div>
+                                        <div style="font-weight: 500; font-size: 0.875rem;">Amoxicillin 500mg</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary)">Đã bán: 60 vỉ</div>
+                                    </div>
+                                </div>
+                                <span style="font-size: 0.875rem; font-weight: 600; color: var(--primary-color);">1.200.000 ₫</span>
+                            </div>
+                            <div class="list-item" style="justify-content: center; cursor: pointer; color: var(--primary-color); font-size: 0.875rem; font-weight: 500; padding-top: 10px;" onclick="window.location.href='reports.html'">
+                                Xem báo cáo chi tiết <i class="fa-solid fa-arrow-right" style="margin-left: 4px;"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
+                <div class="chart-grid" style="margin-top: var(--spacing-xl);">
+                    <!-- VIP Customers (Top Spenders) -->
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div><i class="fa-solid fa-crown text-warning" style="margin-right: 8px;"></i> Khách hàng VIP (Chi tiêu cao)</div>
+                            <span class="badge badge-warning">Tháng này</span>
+                        </div>
+                        <div class="card-body list-group">
+                            <div class="list-item">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="position: relative;">
+                                        <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #FDE68A 0%, #D97706 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;">
+                                            <i class="fa-solid fa-user"></i>
+                                        </div>
+                                        <div style="position: absolute; bottom: -5px; right: -5px; background: white; border-radius: 50%; padding: 2px;">
+                                            <div style="width: 16px; height: 16px; background: #F59E0B; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: bold;">1</div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 0.9rem;">Nguyễn Văn A</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary)">0901 234 567</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--primary-color);">12.500.000 ₫</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">5 đơn hàng</div>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="position: relative;">
+                                        <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #E2E8F0 0%, #94A3B8 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;">
+                                            <i class="fa-solid fa-user"></i>
+                                        </div>
+                                        <div style="position: absolute; bottom: -5px; right: -5px; background: white; border-radius: 50%; padding: 2px;">
+                                            <div style="width: 16px; height: 16px; background: #94A3B8; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: bold;">2</div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 0.9rem;">Trần Thị B</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary)">0912 345 678</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--primary-color);">8.200.000 ₫</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">3 đơn hàng</div>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="position: relative;">
+                                        <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #FFEDD5 0%, #EA580C 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;">
+                                            <i class="fa-solid fa-user"></i>
+                                        </div>
+                                        <div style="position: absolute; bottom: -5px; right: -5px; background: white; border-radius: 50%; padding: 2px;">
+                                            <div style="width: 16px; height: 16px; background: #EA580C; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: bold;">3</div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 0.9rem;">Lê Văn C</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary)">0987 654 321</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--primary-color);">5.400.000 ₫</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">8 đơn hàng</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Loyal Customers (Frequency) -->
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div><i class="fa-solid fa-heart text-danger" style="margin-right: 8px;"></i> Khách hàng mua thường xuyên</div>
+                            <span class="badge badge-primary">Tất cả</span>
+                        </div>
+                        <div class="card-body list-group">
+                            <div class="list-item">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1rem;">
+                                        PT
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 0.9rem;">Phạm Thị T</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary)">Khách quen (Tiểu đường)</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--success-color);">24 lần</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Mua gần nhất: Hôm qua</div>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: #fce7f3; color: #db2777; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1rem;">
+                                        HM
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 0.9rem;">Hoàng Minh M</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary)">Khách quen (Huyết áp)</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--success-color);">18 lần</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Mua gần nhất: 3 ngày trước</div>
+                                </div>
+                            </div>
+                            <div class="list-item">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: #dcfce7; color: #16a34a; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1rem;">
+                                        ĐK
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 0.9rem;">Đinh Hữu K</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary)">Khách sỉ</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--success-color);">15 lần</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Mua gần nhất: Tuần trước</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>

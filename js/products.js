@@ -81,13 +81,15 @@ const ProductManager = {
                     <td style="font-weight: 600; color: var(--primary-color);">${App.formatCurrency(p.price)}</td>
                     <td><span class="badge ${stockClass}">${p.stock}</span></td>
                     <td><span class="badge ${statusClass}">${statusText}</span></td>
-                    <td style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end;">
-                        <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="ProductManager.editProduct('${p.id}')" title="Sửa">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button class="btn btn-outline" style="padding: 0.25rem 0.5rem; color: var(--danger-color);" onclick="ProductManager.deleteProduct('${p.id}')" title="Xóa">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
+                    <td style="text-align: right;">
+                        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                            <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="ProductManager.editProduct('${p.id}')" title="Sửa">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="btn btn-outline" style="padding: 0.25rem 0.5rem; color: var(--danger-color);" onclick="ProductManager.deleteProduct('${p.id}')" title="Xóa">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `;
@@ -180,6 +182,10 @@ const ProductManager = {
     },
 
     deleteProduct: function(id) {
+        if (Auth.getCurrentUser().role !== 'ADMIN') {
+            App.showToast('Chỉ Quản trị viên mới có quyền xóa sản phẩm!', 'error');
+            return;
+        }
         App.showConfirm(`Bạn có chắc chắn muốn xóa sản phẩm ${id} không? Thao tác này không thể hoàn tác.`, () => {
             const index = this.products.findIndex(x => x.id === id);
             if (index !== -1) {

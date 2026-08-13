@@ -86,14 +86,14 @@ const Cart = {
         const btn = event.target.closest('button');
         if (!btn) return;
         
-        const card = btn.closest('.product-card');
+        const card = btn.closest('.product-card') || btn.closest('.product-card-mini');
         let img = null;
         if (card) {
-            img = card.querySelector('.product-image');
+            img = card.querySelector('img');
         } else {
             // For detail page
             const container = btn.closest('.shop-container') || document.body;
-            img = container.querySelector('img'); 
+            img = container.querySelector('#main-img') || container.querySelector('img'); 
         }
         
         if (!img) return;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập / Đăng ký - Smart Pharmacy</title>
+    <title>Đăng nhập / Đăng ký - AINA Pharmacy</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -89,13 +89,32 @@
         .d-none {
             display: none !important;
         }
+        .demo-accounts {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px dashed var(--shop-border);
+            font-size: 0.875rem;
+            color: var(--shop-text-muted);
+        }
+        .demo-account-item {
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            color: var(--shop-primary);
+        }
+        .demo-account-item:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body class="shop-layout">
 
     <header class="shop-header">
         <div class="shop-header-top" style="justify-content: center;">
-            <a href="shop.html" class="shop-logo"><i class="fa-solid fa-notes-medical"></i> Smart Pharmacy</a>
+            <a href="shop.html" class="shop-logo"><img src="../assets/images/ainalogo.png" class="shop-logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/8687/8687597.png'" alt="Logo">
+                <div class="shop-logo-text">
+                    <span class="shop-logo-top">NHÀ THUỐC</span>
+                    <span class="shop-logo-bottom">AINA</span>
+                </div></a>
         </div>
     </header>
 
@@ -118,6 +137,10 @@
                     <a onclick="switchForm('register-form')">Đăng ký ngay</a>
                 </div>
             </form>
+            <div class="demo-accounts">
+                <p style="font-weight: 600; margin-bottom: 0.5rem; color: var(--shop-text);">Tài khoản Demo (Password: 123):</p>
+                <div class="demo-account-item" onclick="fillDemo('khachhang@pharmacy.local')">khachhang@pharmacy.local (Khách hàng)</div>
+            </div>
         </div>
 
         <!-- Đăng ký -->
@@ -171,6 +194,11 @@
             document.getElementById('register-form').classList.add('d-none');
             document.getElementById('forgot-form').classList.add('d-none');
             document.getElementById(formId).classList.remove('d-none');
+        }
+
+        function fillDemo(email) {
+            document.getElementById('login-email').value = email;
+            document.getElementById('login-pw').value = '123';
         }
 
         function handleLogin(e) {

@@ -15,10 +15,16 @@ const ShopAI = {
     buildFooter: function() {
         if(document.querySelector('footer')) return;
         const footerHtml = `
-            <footer id="shop-footer" style="background-color: #1f2937; color: #d1d5db; padding: 3rem 1rem 1rem; margin-top: 4rem; width: 100%; box-sizing: border-box;">
+            <footer id="shop-footer" style="background-color: #1f2937; color: #d1d5db; padding: 3rem 1rem 1rem; margin-top: auto; width: 100%; box-sizing: border-box;">
                 <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; border-bottom: 1px solid #374151; padding-bottom: 2rem;">
                     <div>
-                        <h3 style="color: white; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; font-size: 1.2rem;"><i class="fa-solid fa-notes-medical"></i> Smart Pharmacy</h3>
+                        <h3 style="color: white; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; font-size: 1.2rem;">
+                            <img src="../assets/images/ainalogo.png" class="shop-logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/8687/8687597.png'" alt="Logo">
+                            <div class="shop-logo-text" style="text-align: left;">
+                                <span class="shop-logo-top">NHÀ THUỐC</span>
+                                <span class="shop-logo-bottom">AINA</span>
+                            </div>
+                        </h3>
                         <p style="font-size: 0.875rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-location-dot" style="width: 20px;"></i> 123 Đường ABC, Quận X, TP.HCM</p>
                         <p style="font-size: 0.875rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-phone" style="width: 20px;"></i> Hotline: 1900 1234</p>
                         <p style="font-size: 0.875rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-envelope" style="width: 20px;"></i> Email: contact@smartpharmacy.local</p>
@@ -48,8 +54,8 @@ const ShopAI = {
                         </div>
                     </div>
                 </div>
-                <div style="text-align: center; font-size: 0.875rem; padding-top: 1.5rem;">
-                    &copy; 2026 Smart Pharmacy. All rights reserved.
+                <div style="text-align: center; margin-top: 2rem; font-size: 0.875rem; color: #9ca3af;">
+                    &copy; 2026 AINA Pharmacy. All rights reserved.
                 </div>
             </footer>
         `;

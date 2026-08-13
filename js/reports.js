@@ -13,11 +13,15 @@ const Reports = {
         
         let filteredOrders = this.orders.filter(o => o.status !== 'CANCELLED');
         
-        // Mock filtering (in reality we use Date logic)
-        // For prototype, we'll just process all or mock a subset if 'today'
         if (period === 'today') {
             const todayStr = now.toISOString().split('T')[0];
             filteredOrders = filteredOrders.filter(o => o.timestamp.startsWith(todayStr));
+        } else if (period === '7days') {
+            const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            filteredOrders = filteredOrders.filter(o => new Date(o.timestamp) >= last7Days);
+        } else if (period === 'thismonth') {
+            const monthStr = now.toISOString().slice(0, 7); // YYYY-MM
+            filteredOrders = filteredOrders.filter(o => o.timestamp.startsWith(monthStr));
         }
 
         let totalRevenue = 0;
@@ -44,7 +48,31 @@ const Reports = {
         document.getElementById('rep-items').innerText = totalItems;
 
         this.renderTopProducts(productSales);
-        this.renderChart();
+        
+        // Prepare dynamic chart data
+        let chartMap = {};
+        filteredOrders.forEach(o => {
+            const dateStr = new Date(o.timestamp).toLocaleDateString('vi-VN');
+            if (!chartMap[dateStr]) chartMap[dateStr] = 0;
+            chartMap[dateStr] += o.summary.total;
+        });
+        
+        // Sort by date (naive string sort doesn't work for DD/MM/YYYY, but fine for prototype)
+        // Better to sort by actual timestamp if needed, but we'll extract directly
+        let chartLabels = Object.keys(chartMap).sort((a,b) => {
+            let [d1,m1,y1] = a.split('/');
+            let [d2,m2,y2] = b.split('/');
+            return new Date(y1, m1-1, d1) - new Date(y2, m2-1, d2);
+        });
+        
+        let chartData = chartLabels.map(label => chartMap[label]);
+
+        if(chartLabels.length === 0) {
+            chartLabels = ['Không có dữ liệu'];
+            chartData = [0];
+        }
+
+        this.renderChart(chartLabels, chartData);
     },
 
     renderTopProducts: function(productSales) {
@@ -68,8 +96,7 @@ const Reports = {
         tbody.innerHTML = html;
     },
 
-    renderChart: function() {
-        // Mock Chart Data for prototype
+    renderChart: function(labels, data) {
         const ctx = document.getElementById('revenueChart').getContext('2d');
         
         if (this.chartInstance) {
@@ -79,10 +106,10 @@ const Reports = {
         this.chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['Ngày 1', 'Ngày 2', 'Ngày 3', 'Ngày 4', 'Ngày 5', 'Ngày 6', 'Hôm nay'],
+                labels: labels,
                 datasets: [{
-                    label: 'Doanh thu',
-                    data: [5000000, 7500000, 4000000, 9000000, 12000000, 8500000, 15000000],
+                    label: 'Doanh thu (₫)',
+                    data: data,
                     borderColor: '#007BFF',
                     backgroundColor: 'rgba(0, 123, 255, 0.1)',
                     borderWidth: 2,

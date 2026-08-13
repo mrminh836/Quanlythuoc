@@ -14,7 +14,7 @@ const Layout = {
         { id: 'suppliers', label: 'Nhà cung cấp', icon: 'fa-truck-field', link: 'suppliers.html' },
         { id: 'reports', label: 'Báo cáo', icon: 'fa-chart-line', link: 'reports.html' },
         { id: 'employees', label: 'Nhân viên', icon: 'fa-user-nurse', link: 'employees.html' },
-        { id: 'ai', label: 'AI Assistant', icon: 'fa-robot', link: 'ai-assistant.html', extraClass: 'color-primary' },
+        { id: 'ai', label: 'AINA Assistant', icon: 'fa-robot', link: 'ai-assistant.html', extraClass: 'color-primary' },
         { id: 'settings', label: 'Cài đặt', icon: 'fa-gear', link: 'settings.html' }
     ],
 
@@ -37,8 +37,11 @@ const Layout = {
 
         const sidebarHtml = `
             <div class="sidebar-header">
-                <i class="fa-solid fa-notes-medical" style="margin-right: 12px; font-size: 1.5rem;"></i>
-                <span>Smart Pharm</span>
+                <img src="../assets/images/ainalogo.png" class="sidebar-logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/8687/8687597.png'" alt="Logo" style="height: 48px; width: auto; max-width: 60px; object-fit: contain;">
+                <div class="sidebar-logo-text" style="display: flex; flex-direction: column;">
+                    <span style="font-size: 0.7rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; line-height: 1.2; margin-bottom: 2px;">NHÀ THUỐC</span>
+                    <span style="font-size: 1.2rem; font-weight: 700; color: var(--primary-color); line-height: 1.2;">AINA</span>
+                </div>
             </div>
             <div class="sidebar-nav">
                 ${menuHtml}

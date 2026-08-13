@@ -18,6 +18,9 @@ body.shop-layout {
     font-family: 'Inter', sans-serif;
     margin: 0;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 /* Header */
@@ -39,13 +42,42 @@ body.shop-layout {
 }
 
 .shop-logo {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--shop-primary);
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+}
+
+.shop-logo-img {
+    height: 64px;
+    width: auto;
+    max-width: 90px;
+    object-fit: contain;
+}
+
+.shop-logo-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.shop-logo-top {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #4b5563;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    line-height: 1.1;
+    margin-bottom: 2px;
+}
+
+.shop-logo-bottom {
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: var(--shop-primary);
+    text-transform: uppercase;
+    letter-spacing: 0;
+    line-height: 1;
 }
 
 .shop-search-bar {
@@ -522,6 +554,7 @@ body.shop-layout {
     background: #1e293b;
     color: #f8fafc;
     padding: 4rem 0 2rem;
+    margin-top: auto;
 }
 .footer-grid {
     display: grid;
@@ -586,3 +619,40 @@ body.shop-layout {
     color: #64748b;
     font-size: 0.9rem;
 }
+
+/* Toast Notifications */
+.toast-container {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.toast {
+    background-color: white;
+    border-left: 5px solid var(--shop-primary);
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 320px;
+    transform: translateX(150%);
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    color: #1e293b;
+    font-weight: 500;
+}
+.toast.show {
+    transform: translateX(0);
+}
+.toast.success { border-left-color: #22c55e; }
+.toast.success .toast-icon { color: #22c55e; }
+.toast.error { border-left-color: #ef4444; }
+.toast.error .toast-icon { color: #ef4444; }
+.toast.info { border-left-color: #3b82f6; }
+.toast.info .toast-icon { color: #3b82f6; }
+.toast.warning { border-left-color: #f59e0b; }
+.toast.warning .toast-icon { color: #f59e0b; }

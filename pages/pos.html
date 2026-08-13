@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bán hàng (POS) - Smart Pharmacy</title>
+    <title>Bán hàng (POS) - AINA Pharmacy</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -308,7 +308,7 @@
 
     <div class="app-container">
         <!-- Sidebar -->
-        <aside class="app-sidebar collapsed" id="app-sidebar"></aside>
+        <aside class="app-sidebar" id="app-sidebar"></aside>
 
         <!-- Main Content -->
         <main class="app-main">
@@ -327,10 +327,14 @@
                         </div>
                         <select class="form-control" id="pos-category" style="width: 200px;">
                             <option value="">Tất cả danh mục</option>
-                            <option value="Kháng sinh">Kháng sinh</option>
-                            <option value="Giảm đau, hạ sốt">Giảm đau, hạ sốt</option>
-                            <option value="Vitamin">Vitamin</option>
-                            <option value="Tiêu hóa">Tiêu hóa</option>
+                            <option value="Thuốc">Thuốc</option>
+                            <option value="Thực phẩm bảo vệ sức khỏe">Thực phẩm bảo vệ sức khỏe</option>
+                            <option value="Vitamin & khoáng chất">Vitamin & khoáng chất</option>
+                            <option value="Dược mỹ phẩm">Dược mỹ phẩm</option>
+                            <option value="Thiết bị y tế">Thiết bị y tế</option>
+                            <option value="Chăm sóc cá nhân">Chăm sóc cá nhân</option>
+                            <option value="Mẹ & bé">Mẹ & bé</option>
+                            <option value="Chăm sóc răng miệng">Chăm sóc răng miệng</option>
                         </select>
                     </div>
 
@@ -347,7 +351,7 @@
                             <option value="GUEST">Khách lẻ</option>
                             <!-- Customers injected by JS -->
                         </select>
-                        <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" title="Thêm khách mới">
+                        <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" title="Thêm khách mới" onclick="POS.showAddCustomerModal()">
                             <i class="fa-solid fa-user-plus"></i>
                         </button>
                     </div>
@@ -389,6 +393,68 @@
         </main>
     </div>
 
+    <!-- Add Customer Modal -->
+    <div class="modal-overlay" id="add-customer-modal">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                Thêm khách hàng mới
+                <button class="modal-close" onclick="closeAddCustomerModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Tên khách hàng <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="new-customer-name" placeholder="Nhập tên khách hàng...">
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Số điện thoại <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="new-customer-phone" placeholder="Nhập số điện thoại...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeAddCustomerModal()">Hủy</button>
+                <button class="btn btn-primary" onclick="POS.saveNewCustomer()"><i class="fa-solid fa-save"></i> Lưu khách hàng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal-overlay" id="payment-modal">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                Thanh toán
+                <button class="modal-close" onclick="closePaymentModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Phương thức thanh toán</label>
+                    <select class="form-control" id="payment-method" onchange="POS.handlePaymentMethodChange()">
+                        <option value="CASH">Tiền mặt</option>
+                        <option value="CARD">Quẹt thẻ (POS)</option>
+                        <option value="TRANSFER">Chuyển khoản</option>
+                    </select>
+                </div>
+                <div id="cash-payment-details" style="display: none; margin-bottom: 1rem;">
+                    <div class="form-group" style="margin-bottom: 0.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Khách đưa</label>
+                        <input type="text" class="form-control" id="amount-given" placeholder="Nhập số tiền khách đưa..." oninput="POS.calculateChange()">
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.95rem;">
+                        <span style="font-weight: 500;">Tiền thừa trả khách:</span>
+                        <span id="amount-change" style="font-weight: 700; color: var(--danger-color);">0 ₫</span>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px dashed var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 500;">Tổng tiền:</span>
+                    <span id="payment-total-amount" style="font-size: 1.25rem; font-weight: 700; color: var(--primary-color);">0 ₫</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closePaymentModal()">Hủy</button>
+                <button class="btn btn-primary" onclick="POS.processCheckout()"><i class="fa-solid fa-check"></i> Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Invoice Modal -->
     <div class="modal-overlay" id="invoice-modal">
         <div class="modal">
@@ -423,10 +489,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Render Layout with collapsed sidebar for POS
+            // Render Layout
             Layout.renderSidebar('pos');
             Layout.renderHeader('Bán hàng (POS)');
-            document.getElementById('app-sidebar').classList.add('collapsed');
             
             // Khởi tạo logic POS
             POS.init();
@@ -435,6 +500,14 @@
         function closeInvoiceModal() {
             document.getElementById('invoice-modal').classList.remove('active');
             POS.clearCart(); // Clear after closing success modal
+        }
+        
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.remove('active');
+        }
+        
+        function closeAddCustomerModal() {
+            document.getElementById('add-customer-modal').classList.remove('active');
         }
         
         function printInvoice() {

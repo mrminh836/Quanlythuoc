@@ -15,6 +15,7 @@
     flex-direction: column;
     transition: width 0.3s ease;
     z-index: 100;
+    flex-shrink: 0;
 }
 
 .app-sidebar.collapsed {
@@ -64,8 +65,17 @@
     width: 24px;
 }
 
-.app-sidebar.collapsed .nav-text {
+.app-sidebar.collapsed .nav-text,
+.app-sidebar.collapsed .sidebar-logo-text {
     display: none;
+}
+
+.sidebar-logo-img {
+    margin-right: 12px;
+}
+
+.app-sidebar.collapsed .sidebar-logo-img {
+    margin-right: 0;
 }
 
 .app-sidebar.collapsed .nav-icon {

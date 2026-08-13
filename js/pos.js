@@ -91,6 +91,47 @@ const POS = {
         select.innerHTML = html;
     },
 
+    showAddCustomerModal: function() {
+        document.getElementById('new-customer-name').value = '';
+        document.getElementById('new-customer-phone').value = '';
+        document.getElementById('add-customer-modal').classList.add('active');
+    },
+
+    saveNewCustomer: function() {
+        const name = document.getElementById('new-customer-name').value.trim();
+        const phone = document.getElementById('new-customer-phone').value.trim();
+
+        if (!name || !phone) {
+            App.showToast('Vui lòng nhập tên và số điện thoại!', 'error');
+            return;
+        }
+
+        const newId = 'CUS-' + Date.now().toString().slice(-6);
+        const newCustomer = {
+            id: newId,
+            name: name,
+            phone: phone,
+            email: '',
+            address: '',
+            tier: 'Bronze',
+            points: 0,
+            joinDate: new Date().toISOString()
+        };
+
+        this.customers.push(newCustomer);
+        Storage.set('customers', this.customers);
+        
+        this.renderCustomers();
+        
+        // Select the newly added customer
+        document.getElementById('customer-select').value = newId;
+        this.currentCustomer = newId;
+        this.updateCartSummary();
+
+        document.getElementById('add-customer-modal').classList.remove('active');
+        App.showToast('Đã thêm khách hàng mới!', 'success');
+    },
+
     addToCart: function(productId) {
         const product = this.products.find(p => p.id === productId);
         if (!product || product.stock <= 0) return;
@@ -250,6 +291,52 @@ const POS = {
 
     checkout: function() {
         if (this.cart.length === 0) return;
+        
+        document.getElementById('payment-total-amount').innerText = App.formatCurrency(this.currentSummary.total);
+        document.getElementById('payment-method').value = 'CASH'; // default
+        document.getElementById('amount-given').value = '';
+        document.getElementById('amount-change').innerText = '0 ₫';
+        this.handlePaymentMethodChange(); // Init cash details display
+
+        document.getElementById('payment-modal').classList.add('active');
+    },
+
+    handlePaymentMethodChange: function() {
+        const method = document.getElementById('payment-method').value;
+        const cashDetails = document.getElementById('cash-payment-details');
+        if (method === 'CASH') {
+            cashDetails.style.display = 'block';
+            this.calculateChange();
+        } else {
+            cashDetails.style.display = 'none';
+        }
+    },
+
+    calculateChange: function() {
+        const inputEl = document.getElementById('amount-given');
+        const givenInput = inputEl.value.replace(/[^0-9]/g, '');
+        const given = parseInt(givenInput) || 0;
+        
+        if (givenInput) {
+             inputEl.value = given.toLocaleString('vi-VN');
+        } else {
+             inputEl.value = '';
+        }
+
+        const total = this.currentSummary ? this.currentSummary.total : 0;
+        let change = given - total;
+        if (change < 0) change = 0;
+
+        document.getElementById('amount-change').innerText = App.formatCurrency(change);
+    },
+
+    processCheckout: function() {
+        if (this.cart.length === 0) return;
+        
+        const paymentMethod = document.getElementById('payment-method').value;
+
+        // Close payment modal
+        document.getElementById('payment-modal').classList.remove('active');
 
         // 1. Tạo đơn hàng mới
         const orderId = 'ORD-' + Date.now().toString().slice(-6);
@@ -264,21 +351,39 @@ const POS = {
             summary: this.currentSummary,
             timestamp: new Date().toISOString(),
             status: 'COMPLETED',
-            paymentMethod: 'CASH'
+            paymentMethod: paymentMethod
         };
 
         const orders = Storage.get('orders') || [];
         orders.push(newOrder);
         Storage.set('orders', orders);
 
-        // 2. Trừ tồn kho
-        this.cart.forEach(item => {
-            const product = this.products.find(p => p.id === item.id);
-            if(product) {
-                product.stock -= item.quantity;
+        // 2. Update stock for products and batches
+        let batches = Storage.get('batches') || [];
+        this.cart.forEach(cartItem => {
+            const product = this.products.find(p => p.id === cartItem.id);
+            if (product) {
+                product.stock -= cartItem.quantity;
+                
+                // Deduct from batches (FIFO: oldest expiry first)
+                let remainingToDeduct = cartItem.quantity;
+                let productBatches = batches.filter(b => b.productId === product.id && b.quantity > 0)
+                                            .sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+                                            
+                for (let b of productBatches) {
+                    if (remainingToDeduct <= 0) break;
+                    if (b.quantity >= remainingToDeduct) {
+                        b.quantity -= remainingToDeduct;
+                        remainingToDeduct = 0;
+                    } else {
+                        remainingToDeduct -= b.quantity;
+                        b.quantity = 0;
+                    }
+                }
             }
         });
-        Storage.set('products', this.products);
+        Storage.set('products', this.products); // Update stock
+        Storage.set('batches', batches); // Update batch stock
         this.renderProducts(); // Update UI
 
         // 3. Render Hóa đơn
@@ -305,8 +410,10 @@ const POS = {
         });
 
         const invoiceHtml = `
-            <h2>NHÀ THUỐC SMART PHARMACY</h2>
-            <p>123 Đường Y Tế, Quận 1, TP.HCM<br>ĐT: 0123.456.789</p>
+            <div style="text-align: center; margin-bottom: 20px; border-bottom: 1px dashed #000; padding-bottom: 10px;">
+                <h2>NHÀ THUỐC AINA</h2>
+                <p>123 Đường Y Tế, Quận 1, TP.HCM<br>ĐT: 0123.456.789</p>
+            </div>
             <h3 style="margin: 1rem 0;">HÓA ĐƠN BÁN HÀNG</h3>
             <div style="text-align: left; margin-bottom: 1rem; font-size: 0.875rem;">
                 <div>Mã HĐ: ${order.id}</div>

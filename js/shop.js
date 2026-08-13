@@ -14,6 +14,7 @@ const Shop = {
         this.renderProducts();
         this.initSlider();
         this.loadNews();
+        this.initScrollToTop();
     },
 
     initSlider: function() {
@@ -44,6 +45,62 @@ const Shop = {
         setInterval(() => {
             goToSlide(currentSlide + 1);
         }, 4000); // Tự động trượt sau 4 giây
+    },
+
+    initScrollToTop: function() {
+        const btn = document.createElement('button');
+        btn.id = 'scroll-to-top-btn';
+        btn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
+        
+        Object.assign(btn.style, {
+            position: 'fixed',
+            bottom: '30px', 
+            right: '150px', // Đặt bên phải nhưng cách một khoảng để nằm ngay cạnh trái của AINA
+            width: '45px',
+            height: '45px',
+            borderRadius: '50%',
+            backgroundColor: 'var(--primary-color, #0ea5e9)',
+            color: 'white',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '18px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            opacity: '0',
+            visibility: 'hidden',
+            transition: 'all 0.3s ease',
+            zIndex: '9998'
+        });
+        
+        document.body.appendChild(btn);
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                btn.style.opacity = '1';
+                btn.style.visibility = 'visible';
+            } else {
+                btn.style.opacity = '0';
+                btn.style.visibility = 'hidden';
+            }
+        });
+        
+        btn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        btn.addEventListener('mouseenter', () => {
+            btn.style.transform = 'translateY(-3px)';
+            btn.style.boxShadow = '0 6px 15px rgba(0,0,0,0.3)';
+        });
+        btn.addEventListener('mouseleave', () => {
+            btn.style.transform = 'translateY(0)';
+            btn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+        });
     },
 
     loadNews: async function() {
@@ -204,7 +261,50 @@ const Shop = {
         cats.forEach(c => {
             html += `<li class="shop-nav-item" onclick="Shop.filterCategory('${c}')">${c}</li>`;
         });
-        if(nav) nav.innerHTML = html;
+        if(nav) {
+            nav.innerHTML = html;
+            this.initDragToScroll(nav);
+        }
+    },
+
+    initDragToScroll: function(slider) {
+        if (!slider) return;
+        let isDown = false;
+        let isDragging = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            isDragging = false;
+            slider.style.cursor = 'grabbing';
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.style.cursor = '';
+        });
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.style.cursor = '';
+        });
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.5; 
+            if (Math.abs(x - startX) > 5) {
+                isDragging = true;
+            }
+            slider.scrollLeft = scrollLeft - walk;
+        });
+        slider.addEventListener('click', (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, { capture: true });
     },
 
     renderBrands: function() {

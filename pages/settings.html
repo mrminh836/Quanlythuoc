@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cài đặt hệ thống - Smart Pharmacy</title>
+    <title>Cài đặt hệ thống - AINA Pharmacy</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/variables.css">
@@ -20,12 +20,12 @@
 </head>
 <body>
     <div class="app-container">
-        <aside class="sidebar" id="app-sidebar"></aside>
+        <aside class="app-sidebar" id="app-sidebar"></aside>
         
-        <main class="main-content">
-            <header class="header" id="app-header"></header>
+        <main class="app-main">
+            <header class="app-header" id="app-header"></header>
             
-            <div class="content-area">
+            <div class="page-content">
                 <div class="settings-card">
                     <h2 style="margin-bottom: 2rem; display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-gear text-primary"></i> Cài đặt hệ thống
@@ -117,15 +117,18 @@
                 Storage.set('settings', settings);
                 App.hideLoading();
                 App.showToast('Đã lưu cài đặt thành công!', 'success');
+                setTimeout(() => window.location.reload(), 1500);
             }, 800);
         }
 
         function previewTheme() {
             const val = document.getElementById('setting-theme').value;
             if(val === 'dark') {
-                document.body.style.filter = 'invert(1) hue-rotate(180deg)';
+                document.documentElement.style.filter = 'invert(1) hue-rotate(180deg)';
+                document.documentElement.style.backgroundColor = '#121212';
             } else {
-                document.body.style.filter = 'none';
+                document.documentElement.style.filter = 'none';
+                document.documentElement.style.backgroundColor = '';
             }
         }
     </script>

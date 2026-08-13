@@ -3,6 +3,138 @@
  */
 
 const App = {
+    // Khởi tạo app (Theme, v.v...)
+    init: function() {
+        this.applyTheme();
+        this.applyLanguage();
+    },
+
+    // Áp dụng giao diện (Sáng/Tối)
+    applyTheme: function() {
+        const settings = Storage.get('settings') || {};
+        if (settings.theme === 'dark') {
+            document.documentElement.style.filter = 'invert(1) hue-rotate(180deg)';
+            document.documentElement.style.backgroundColor = '#121212';
+        } else {
+            document.documentElement.style.filter = 'none';
+            document.documentElement.style.backgroundColor = '';
+        }
+    },
+
+    // Áp dụng ngôn ngữ
+    applyLanguage: function() {
+        const settings = Storage.get('settings') || {};
+        const lang = settings.language || 'vi';
+        if (lang === 'vi') return;
+
+        const dict = {
+            "Dashboard": "Dashboard",
+            "Bán hàng (POS)": "Point of Sale",
+            "Sản phẩm": "Products",
+            "Tồn kho & Lô": "Inventory & Batches",
+            "Đơn hàng": "Orders",
+            "Khách hàng": "Customers",
+            "Nhà cung cấp": "Suppliers",
+            "Báo cáo": "Reports",
+            "Nhân viên": "Staff",
+            "Cài đặt": "Settings",
+            "Cài đặt hệ thống": "System Settings",
+            "Giao diện (Theme)": "Theme",
+            "Chuyển đổi giao diện Sáng / Tối (Demo)": "Switch between Light / Dark mode",
+            "Ngôn ngữ": "Language",
+            "Ngôn ngữ hiển thị chính": "Primary display language",
+            "Email Notifications": "Email Notifications",
+            "Nhận cảnh báo tồn kho qua email": "Receive inventory alerts via email",
+            "Push Notifications": "Push Notifications",
+            "Nhận thông báo đơn hàng mới trình duyệt": "Receive new order notifications in browser",
+            "Khôi phục": "Restore",
+            "Lưu thay đổi": "Save Changes",
+            "Sáng (Light)": "Light",
+            "Tối (Dark) - Demo": "Dark",
+            "Đã lưu cài đặt thành công!": "Settings saved successfully!",
+            "Tổng quan kinh doanh": "Business Overview",
+            "Tạo đơn mới": "New Order",
+            "Doanh thu": "Revenue",
+            "Số đơn hàng": "Total Orders",
+            "Sản phẩm sắp hết": "Low stock items",
+            "Lô sắp/đã hết hạn": "Expiring/expired batches",
+            "Biểu đồ doanh thu 7 ngày qua": "Revenue chart last 7 days",
+            "AI Insights": "AI Insights",
+            "Oresol sắp hết hàng": "Oresol is out of stock",
+            "Tồn kho hiện tại: 0. Gợi ý nhập thêm 100 hộp.": "Current stock: 0. Suggest importing 100 boxes.",
+            "Panadol bán chạy": "Panadol is selling fast",
+            "Tăng 25% so với tuần trước.": "Increased 25% compared to last week.",
+            "Amoxicillin sắp hết hạn": "Amoxicillin expiring soon",
+            "Lô LOT2024 hết hạn sau 15 ngày.": "Batch LOT2024 expires in 15 days.",
+            "Đơn hàng gần đây": "Recent Orders",
+            "Mã đơn": "Order ID",
+            "Thời gian": "Time",
+            "Tổng tiền": "Total Amount",
+            "Trạng thái": "Status",
+            "Khách lẻ": "Retail",
+            "Hoàn thành": "Completed",
+            "Hủy": "Cancelled",
+            "Các loại thuốc bán chạy": "Top Selling Medicines",
+            "Đã bán": "Sold",
+            "hộp": "boxes",
+            "lọ": "bottles",
+            "vỉ": "blisters",
+            "Xem báo cáo chi tiết": "View detailed reports",
+            "Khách hàng VIP (Chi tiêu cao)": "VIP Customers (Top Spenders)",
+            "Tháng này": "This month",
+            "đơn hàng": "orders",
+            "Khách hàng mua thường xuyên": "Frequent Buyers",
+            "Tất cả": "All",
+            "Khách quen (Tiểu đường)": "Regular (Diabetes)",
+            "Khách quen (Huyết áp)": "Regular (Blood Pressure)",
+            "Khách sỉ": "Wholesale",
+            "lần": "times",
+            "Mua gần nhất: Hôm qua": "Last purchase: Yesterday",
+            "Mua gần nhất: 3 ngày trước": "Last purchase: 3 days ago",
+            "Mua gần nhất: Tuần trước": "Last purchase: Last week",
+            "NHÀ THUỐC": "PHARMACY",
+            "Trần Dược Sĩ": "Tran Pharmacist",
+            "Cảnh báo": "Warning",
+            "Tích cực": "Positive",
+            "Gấp": "Urgent"
+        };
+
+        function translateNode(node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                let text = node.textContent;
+                let trimmed = text.trim();
+                
+                if (trimmed && dict[trimmed]) {
+                    node.textContent = text.replace(trimmed, dict[trimmed]);
+                } else if (trimmed) {
+                    let newText = text;
+                    for (const [vi, en] of Object.entries(dict)) {
+                        // Safe replacement for partial matches
+                        if (newText.includes(vi)) {
+                            newText = newText.replace(vi, en);
+                        }
+                    }
+                    if (newText !== text) {
+                        node.textContent = newText;
+                    }
+                }
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+                if (node.nodeName !== 'SCRIPT' && node.nodeName !== 'STYLE') {
+                    if (node.hasAttribute('placeholder') && dict[node.getAttribute('placeholder')]) {
+                        node.setAttribute('placeholder', dict[node.getAttribute('placeholder')]);
+                    }
+                    for (let i = 0; i < node.childNodes.length; i++) {
+                        translateNode(node.childNodes[i]);
+                    }
+                }
+            }
+        }
+
+        setTimeout(() => {
+            translateNode(document.body);
+        }, 150);
+    },
+
     // Hiển thị thông báo (Toast)
     showToast: function(message, type = 'success') {
         let container = document.getElementById('toast-container');
@@ -179,6 +311,7 @@ const App = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    App.init();
     App.initSidebar();
     
     // Global ESC key listener to close modals
