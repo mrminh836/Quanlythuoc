@@ -288,6 +288,32 @@
         .invoice-table { width: 100%; text-align: left; margin-bottom: 1rem; font-size: 0.875rem; border-collapse: collapse; }
         .invoice-table th, .invoice-table td { padding: 4px 0; border-bottom: 1px dashed #ccc; }
         .invoice-total { text-align: right; font-size: 1.25rem; font-weight: bold; margin-top: 1rem; }
+        @media print {
+            body { background: #fff !important; color: #000 !important; margin: 0; padding: 0; }
+            .app-container, .modal-header, .modal-footer, .toast-container { display: none !important; }
+            .modal-overlay { display: none !important; }
+            .modal-overlay.active { 
+                position: static !important;
+                background: transparent !important;
+                padding: 0 !important;
+                display: block !important;
+            }
+            .modal {
+                box-shadow: none !important;
+                border: 1px dashed #ccc !important;
+                padding: 20px !important;
+                max-width: 400px !important;
+                width: 100% !important;
+                margin: 20mm auto !important;
+                max-height: none !important;
+                overflow: visible !important;
+                transform: none !important;
+            }
+            .modal-body {
+                padding: 0 !important;
+            }
+            @page { margin: 0; size: auto; }
+        }
 
         @media (max-width: 1024px) {
             .page-content {
